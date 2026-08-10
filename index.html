@@ -17,13 +17,14 @@
             height: 100vh;
         }
         .container {
-            background: rgba(30, 15, 50, 0.8);
+            background: rgba(30, 15, 50, 0.85);
             padding: 40px;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(120, 50, 200, 0.3);
             width: 100%;
             max-width: 400px;
             border: 1px solid rgba(150, 80, 250, 0.2);
+            box-sizing: border-box;
         }
         h2 {
             text-align: center;
@@ -68,6 +69,14 @@
         button:hover {
             opacity: 0.9;
         }
+        .secondary-btn {
+            background: transparent;
+            border: 1px solid #7928ca;
+            margin-top: 8px;
+        }
+        .secondary-btn:hover {
+            background: rgba(121, 40, 202, 0.1);
+        }
         #message {
             text-align: center;
             margin-top: 15px;
@@ -85,16 +94,19 @@
             <input type="email" id="email" placeholder="ornek@mail.com">
         </div>
         <div class="input-group">
-            <label>Şifre Belirleyin</label>
+            <label>Şifre</label>
             <input type="password" id="password" placeholder="******">
         </div>
-        <button id="registerBtn" type="button">Kayıt Ol</button>
+
+        <button id="loginBtn" type="button">Giriş Yap</button>
+        <button id="registerBtn" class="secondary-btn" type="button">Kayıt Ol</button>
+        
         <p id="message"></p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
-        import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
@@ -109,35 +121,60 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const registerBtn = document.getElementById("registerBtn");
         const emailInput = document.getElementById("email");
         const passwordInput = document.getElementById("password");
+        const loginBtn = document.getElementById("loginBtn");
+        const registerBtn = document.getElementById("registerBtn");
         const message = document.getElementById("message");
 
+        // Giriş Yap Butonu
+        loginBtn.addEventListener("click", async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen e-posta ve şifrenizi giriniz.";
+                return;
+            }
+
+            try {
+                message.style.color = "#d1b3ff";
+                message.innerText = "Giriş yapılıyor...";
+
+                await signInWithEmailAndPassword(auth, email, password);
+
+                message.style.color = "#00ffcc";
+                message.innerText = "Giriş başarılı! Hoş geldiniz.";
+            } catch (error) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Giriş Hatası: " + error.message;
+            }
+        });
+
+        // Kayıt Ol Butonu
         registerBtn.addEventListener("click", async () => {
             const email = emailInput.value.trim();
             const password = passwordInput.value.trim();
 
             if (!email || !password) {
                 message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen e-posta ve şifre giriniz.";
+                message.innerText = "Kayıt olmak için e-posta ve şifre belirlemelisiniz.";
                 return;
             }
 
             try {
                 message.style.color = "#d1b3ff";
-                message.innerText = "Kayıt yapılıyor...";
+                message.innerText = "Kayıt oluşturuluyor...";
 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                await sendEmailVerification(user);
+                await sendEmailVerification(userCredential.user);
 
                 message.style.color = "#00ffcc";
-                message.innerText = "Kayıt başarılı! Lütfen e-postanızı kontrol edip onay linkine tıklayın.";
+                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi.";
             } catch (error) {
                 message.style.color = "#ff4d4d";
-                message.innerText = "Hata: " + error.message;
+                message.innerText = "Kayıt Hatası: " + error.message;
             }
         });
     </script>
