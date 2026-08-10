@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Macera Fonemde - Giriş</title>
     <style>
-        /* Şık ve modern bir karanlık tema tasarımı */
         body {
             margin: 0;
             padding: 0;
@@ -81,7 +80,6 @@
     <div class="container">
         <h2>Macera Fonemde</h2>
         
-        <!-- Kayıt Formu -->
         <div class="input-group">
             <label>E-posta Adresi</label>
             <input type="email" id="email" placeholder="ornek@mail.com">
@@ -90,11 +88,10 @@
             <label>Şifre Belirleyin</label>
             <input type="password" id="password" placeholder="******">
         </div>
-        <button id="registerBtn">Kayıt Ol</button>
+        <button id="registerBtn" type="button">Kayıt Ol</button>
         <p id="message"></p>
     </div>
 
-    <!-- Firebase Kütüphaneleri ve Bağlantı Kodumuz -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.app.js";
         import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase.auth.js";
@@ -118,15 +115,22 @@
         const message = document.getElementById("message");
 
         registerBtn.addEventListener("click", async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen e-posta ve şifre giriniz.";
+                return;
+            }
 
             try {
-                // Kullanıcıyı oluştur
+                message.style.color = "#d1b3ff";
+                message.innerText = "Kayıt yapılıyor...";
+
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Doğrulama maili gönder
                 await sendEmailVerification(user);
 
                 message.style.color = "#00ffcc";
