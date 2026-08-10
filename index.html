@@ -116,6 +116,21 @@
         .secondary:hover { 
             background: rgba(121, 40, 202, 0.1); 
         }
+        .text-btn {
+            background: none;
+            border: none;
+            color: #ffd700;
+            font-size: 13px;
+            margin-top: 8px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            width: auto;
+        }
+        .text-btn:hover {
+            color: #ffaa00;
+            opacity: 1;
+        }
         #message { 
             margin-top: 15px; 
             font-size: 13px; 
@@ -150,6 +165,7 @@
             </div>
             <button id="loginBtn">Giriş Yap</button>
             <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
+            <button id="forgotPasswordBtn" class="text-btn">Şifremi Unuttum?</button>
         </div>
 
         <div id="registerSection" class="hidden">
@@ -170,7 +186,7 @@
                 <input type="email" id="regEmail" placeholder="ornek@mail.com">
             </div>
             <div class="input-group">
-                <label>Şifre (Min 8 karakter, harf/rakam)</label>
+                <label>Şifre (Min 8 karakter, harf, rakam ve noktalama)</label>
                 <input type="password" id="regPass1" placeholder="En az 8 karakter">
             </div>
             <div class="input-group">
@@ -186,16 +202,14 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Video bittiğinde açılış ekranını otomatik kaldır
         const introVideo = document.getElementById("introVideo");
         introVideo.onended = () => {
             document.getElementById("intro-screen").classList.add("fade-out");
         };
 
-        // Garanti olsun diye video herhangi bir sebepten takılırsa max 9 saniye sonra ekranı aç
         setTimeout(() => {
             const intro = document.getElementById("intro-screen");
             if (!intro.classList.contains("fade-out")) {
@@ -236,6 +250,7 @@
             message.innerText = "";
         };
 
+        // GİRİŞ YAP
         document.getElementById("loginBtn").onclick = async () => {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -249,7 +264,16 @@
             try {
                 message.style.color = "#ffd700";
                 message.innerText = "Maceraya giriş yapılıyor...";
-                await signInWithEmailAndPassword(auth, email, password);
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                if (!user.emailVerified) {
+                    message.style.color = "#ff4d4d";
+                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayarak hesabınızı onaylayın! (Spam klasörünü kontrol edin)";
+                    return;
+                }
+
                 message.style.color = "#00ffcc";
                 message.innerText = "Giriş başarılı! Macera başlıyor...";
             } catch (err) {
@@ -258,6 +282,29 @@
             }
         };
 
+        // ŞİFREMİ UNUTTUM İŞLEMİ
+        document.getElementById("forgotPasswordBtn").onclick = async () => {
+            const email = document.getElementById("loginEmail").value.trim();
+
+            if (!email) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen yukarıdaki E-posta kutusuna adresinizi yazın, ardından 'Şifremi Unuttum' butonuna basın.";
+                return;
+            }
+
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Şifre sıfırlama bağlantısı gönderiliyor...";
+                await sendPasswordResetEmail(auth, email);
+                message.style.color = "#00ffcc";
+                message.innerText = "Şifre sıfırlama talimatları e-posta adresinize gönderildi. Lütfen gelen kutunuzu (ve spam'i) kontrol edin.";
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
+        };
+
+        // KAYIT OL
         document.getElementById("registerBtn").onclick = async () => {
             const name = document.getElementById("regName").value.trim();
             const birthdate = document.getElementById("regBirthdate").value;
@@ -278,16 +325,16 @@
                 return;
             }
 
-            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&._\-]{8,}$/;
             if (!passwordRegex.test(p1)) {
                 message.style.color = "#ff4d4d";
-                message.innerText = "Şifre en az 8 karakter olmalı, harf ve rakam içermelidir!";
+                message.innerText = "Şifre en az 8 karakter olmalı, en az bir harf ve bir rakam içermelidir.";
                 return;
             }
 
             try {
                 message.style.color = "#ffd700";
-                message.innerText = "Maceraya kayıt oluşturuluyor...";
+                message.innerText = "Maceraya kayıt oluşturuluyor ve onay maili gönderiliyor...";
                 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
                 const user = userCredential.user;
@@ -310,7 +357,7 @@
                     loginSection.classList.remove("hidden");
                     formTitle.innerText = "Altın Peşinde - Giriş";
                     message.innerText = "";
-                }, 5000);
+                }, 7000);
 
             } catch (err) {
                 message.style.color = "#ff4d4d";
