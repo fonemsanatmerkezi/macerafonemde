@@ -5,31 +5,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Macera Fonemde - Giriş</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #0f051d; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { background: rgba(30, 15, 50, 0.9); padding: 40px; border-radius: 16px; width: 350px; text-align: center; border: 1px solid #7928ca; box-sizing: border-box; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #4a2875; background: #19092d; color: white; box-sizing: border-box; outline: none; }
-        input:focus { border-color: #9b51e0; }
-        button { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 8px; background: #7928ca; color: white; font-weight: bold; cursor: pointer; }
-        button:hover { opacity: 0.9; }
-        .secondary { background: transparent; border: 1px solid #7928ca; }
-        .secondary:hover { background: rgba(121, 40, 202, 0.1); }
-        #message { margin-top: 15px; font-size: 14px; }
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #0f051d; 
+            color: #fff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+        }
+        .container { 
+            background: rgba(30, 15, 50, 0.9); 
+            padding: 40px; 
+            border-radius: 16px; 
+            width: 100%;
+            max-width: 380px;
+            text-align: center; 
+            border: 1px solid #7928ca; 
+            box-shadow: 0 8px 32px rgba(120, 50, 200, 0.3);
+            box-sizing: border-box; 
+        }
+        h2 {
+            color: #d1b3ff;
+            margin-bottom: 24px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #bfa1e6;
+        }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 1px solid #4a2875; 
+            background: #19092d; 
+            color: white; 
+            box-sizing: border-box; 
+            outline: none; 
+        }
+        input:focus { 
+            border-color: #9b51e0; 
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 10px; 
+            border: none; 
+            border-radius: 8px; 
+            background: linear-gradient(135deg, #7928ca, #b100ff); 
+            color: white; 
+            font-weight: bold; 
+            font-size: 15px;
+            cursor: pointer; 
+            transition: opacity 0.2s;
+        }
+        button:hover { 
+            opacity: 0.9; 
+        }
+        .secondary { 
+            background: transparent; 
+            border: 1px solid #7928ca; 
+        }
+        .secondary:hover { 
+            background: rgba(121, 40, 202, 0.1); 
+        }
+        #message { 
+            margin-top: 15px; 
+            font-size: 14px; 
+            word-break: break-all;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Macera Fonemde</h2>
-        <input type="email" id="email" placeholder="E-posta">
-        <input type="password" id="password" placeholder="Şifre">
+        <h2 id="formTitle">Macera Fonemde</h2>
         
-        <button id="loginBtn">Giriş Yap</button>
-        <button id="registerBtn" class="secondary">Kayıt Ol</button>
+        <!-- Giriş Ekranı Alanları -->
+        <div id="loginSection">
+            <div class="input-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="loginEmail" placeholder="ornek@mail.com">
+            </div>
+            <div class="input-group">
+                <label>Şifre</label>
+                <input type="password" id="loginPassword" placeholder="******">
+            </div>
+            <button id="loginBtn">Giriş Yap</button>
+            <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
+        </div>
+
+        <!-- Kayıt Ol Ekranı Alanları (Başlangıçta gizli) -->
+        <div id="registerSection" class="hidden">
+            <div class="input-group">
+                <label>Ad Soyad / Kullanıcı Adı</label>
+                <input type="text" id="regName" placeholder="Adınız Soyadınız">
+            </div>
+            <div class="input-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="regEmail" placeholder="ornek@mail.com">
+            </div>
+            <div class="input-group">
+                <label>Şifre (Min 8 karakter, harf ve rakam)</label>
+                <input type="password" id="regPass1" placeholder="En az 8 karakter">
+            </div>
+            <div class="input-group">
+                <label>Şifreyi Tekrar Girin</label>
+                <input type="password" id="regPass2" placeholder="Şifrenizi onaylayın">
+            </div>
+            <button id="registerBtn">Kayıt Ol ve Onay Maili Gönder</button>
+            <button id="backToLoginBtn" class="secondary">Geri Dön</button>
+        </div>
         
         <p id="message"></p>
     </div>
 
-    <!-- Güncel ve çalışan Firebase kütüphane adresleri -->
+    <!-- Firebase Kodları -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -46,15 +148,36 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+
+        // HTML Elementleri
+        const loginSection = document.getElementById("loginSection");
+        const registerSection = document.getElementById("registerSection");
+        const formTitle = document.getElementById("formTitle");
         const message = document.getElementById("message");
 
+        // Sayfa Geçiş Butonları
+        document.getElementById("goToRegisterBtn").onclick = () => {
+            loginSection.classList.add("hidden");
+            registerSection.classList.remove("hidden");
+            formTitle.innerText = "Yeni Hesap Oluştur";
+            message.innerText = "";
+        };
+
+        document.getElementById("backToLoginBtn").onclick = () => {
+            registerSection.classList.add("hidden");
+            loginSection.classList.remove("hidden");
+            formTitle.innerText = "Macera Fonemde";
+            message.innerText = "";
+        };
+
+        // Giriş Yap İşlemi
         document.getElementById("loginBtn").onclick = async () => {
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
 
             if (!email || !password) {
                 message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen e-posta ve şifre giriniz.";
+                message.innerText = "Lütfen e-posta ve şifrenizi giriniz.";
                 return;
             }
 
@@ -63,30 +186,58 @@
                 message.innerText = "Giriş yapılıyor...";
                 await signInWithEmailAndPassword(auth, email, password);
                 message.style.color = "#00ffcc";
-                message.innerText = "Giriş başarılı!";
+                message.innerText = "Giriş başarılı! Yönlendiriliyorsunuz...";
             } catch (err) {
                 message.style.color = "#ff4d4d";
                 message.innerText = "Hata: " + err.message;
             }
         };
 
+        // Kayıt Ol İşlemi (Güvenlik Kurallı)
         document.getElementById("registerBtn").onclick = async () => {
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
+            const name = document.getElementById("regName").value.trim();
+            const email = document.getElementById("regEmail").value.trim();
+            const p1 = document.getElementById("regPass1").value;
+            const p2 = document.getElementById("regPass2").value;
 
-            if (!email || !password) {
+            if (!name || !email || !p1 || !p2) {
                 message.style.color = "#ff4d4d";
-                message.innerText = "Kayıt için e-posta ve şifre girmelisiniz.";
+                message.innerText = "Lütfen tüm alanları doldurunuz.";
+                return;
+            }
+
+            if (p1 !== p2) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Şifreler uyuşmuyor!";
+                return;
+            }
+
+            // Şifre kuralı: En az 8 karakter, en az 1 harf ve 1 rakam
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+            if (!passwordRegex.test(p1)) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Şifre en az 8 karakter olmalı, harf ve rakam içermelidir!";
                 return;
             }
 
             try {
                 message.style.color = "#d1b3ff";
                 message.innerText = "Kayıt oluşturuluyor...";
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
+                
                 await sendEmailVerification(userCredential.user);
+
                 message.style.color = "#00ffcc";
-                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi.";
+                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi. Lütfen onaylayıp giriş yapın.";
+                
+                // 4 saniye sonra giriş ekranına geri döndür
+                setTimeout(() => {
+                    registerSection.classList.add("hidden");
+                    loginSection.classList.remove("hidden");
+                    formTitle.innerText = "Macera Fonemde";
+                    message.innerText = "";
+                }, 4000);
+
             } catch (err) {
                 message.style.color = "#ff4d4d";
                 message.innerText = "Hata: " + err.message;
