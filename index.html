@@ -6,10 +6,14 @@
     <title>Macera Fonemde - Giriş</title>
     <style>
         body { margin: 0; padding: 0; background-color: #0f051d; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { background: rgba(30, 15, 50, 0.9); padding: 40px; border-radius: 16px; width: 350px; text-align: center; border: 1px solid #7928ca; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #4a2875; background: #19092d; color: white; box-sizing: border-box; }
+        .container { background: rgba(30, 15, 50, 0.9); padding: 40px; border-radius: 16px; width: 350px; text-align: center; border: 1px solid #7928ca; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #4a2875; background: #19092d; color: white; box-sizing: border-box; outline: none; }
+        input:focus { border-color: #9b51e0; }
         button { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 8px; background: #7928ca; color: white; font-weight: bold; cursor: pointer; }
+        button:hover { opacity: 0.9; }
         .secondary { background: transparent; border: 1px solid #7928ca; }
+        .secondary:hover { background: rgba(121, 40, 202, 0.1); }
+        #message { margin-top: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -25,10 +29,10 @@
         <p id="message"></p>
     </div>
 
-    <!-- Firebase SDK'yı biraz daha farklı yükleyelim -->
+    <!-- Güncel ve çalışan Firebase kütüphane adresleri -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
@@ -36,28 +40,57 @@
             projectId: "macerafonemde",
             storageBucket: "macerafonemde.firebasestorage.app",
             messagingSenderId: "59091076960",
-            appId: "1:59091076960:web:459d45f325fd7d1d788005"
+            appId: "1:59091076960:web:459d45f325fd7d1d788005",
+            measurementId: "G-1SED6PGTC7"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const message = document.getElementById("message");
 
-        document.getElementById("loginBtn").onclick = () => {
-            console.log("Giriş tıklandı");
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            signInWithEmailAndPassword(auth, email, password)
-                .then(() => alert("Giriş başarılı!"))
-                .catch(err => alert("Hata: " + err.message));
+        document.getElementById("loginBtn").onclick = async () => {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            if (!email || !password) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen e-posta ve şifre giriniz.";
+                return;
+            }
+
+            try {
+                message.style.color = "#d1b3ff";
+                message.innerText = "Giriş yapılıyor...";
+                await signInWithEmailAndPassword(auth, email, password);
+                message.style.color = "#00ffcc";
+                message.innerText = "Giriş başarılı!";
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
         };
 
-        document.getElementById("registerBtn").onclick = () => {
-            console.log("Kayıt tıklandı");
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(() => alert("Kayıt başarılı!"))
-                .catch(err => alert("Hata: " + err.message));
+        document.getElementById("registerBtn").onclick = async () => {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            if (!email || !password) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Kayıt için e-posta ve şifre girmelisiniz.";
+                return;
+            }
+
+            try {
+                message.style.color = "#d1b3ff";
+                message.innerText = "Kayıt oluşturuluyor...";
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await sendEmailVerification(userCredential.user);
+                message.style.color = "#00ffcc";
+                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi.";
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
         };
     </script>
 </body>
