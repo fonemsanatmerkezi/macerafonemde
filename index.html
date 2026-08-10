@@ -14,11 +14,11 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
+            min-height: 100vh; 
         }
         .container { 
             background: rgba(30, 15, 50, 0.9); 
-            padding: 40px; 
+            padding: 30px; 
             border-radius: 16px; 
             width: 100%;
             max-width: 380px;
@@ -26,24 +26,25 @@
             border: 1px solid #7928ca; 
             box-shadow: 0 8px 32px rgba(120, 50, 200, 0.3);
             box-sizing: border-box; 
+            margin: 20px;
         }
         h2 {
             color: #d1b3ff;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-align: left;
         }
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             font-size: 13px;
             color: #bfa1e6;
         }
         input { 
             width: 100%; 
-            padding: 12px; 
+            padding: 10px; 
             border-radius: 8px; 
             border: 1px solid #4a2875; 
             background: #19092d; 
@@ -79,7 +80,7 @@
         }
         #message { 
             margin-top: 15px; 
-            font-size: 14px; 
+            font-size: 13px; 
             word-break: break-all;
         }
         .hidden {
@@ -106,18 +107,26 @@
             <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
         </div>
 
-        <!-- Kayıt Ol Ekranı Alanları (Başlangıçta gizli) -->
+        <!-- Kayıt Ol Ekranı Alanları (Doğum Tarihi ve Telefon Eklendi) -->
         <div id="registerSection" class="hidden">
             <div class="input-group">
-                <label>Ad Soyad / Kullanıcı Adı</label>
+                <label>Ad Soyad</label>
                 <input type="text" id="regName" placeholder="Adınız Soyadınız">
+            </div>
+            <div class="input-group">
+                <label>Doğum Tarihi</label>
+                <input type="date" id="regBirthdate">
+            </div>
+            <div class="input-group">
+                <label>Telefon Numarası</label>
+                <input type="tel" id="regPhone" placeholder="0555...">
             </div>
             <div class="input-group">
                 <label>E-posta Adresi</label>
                 <input type="email" id="regEmail" placeholder="ornek@mail.com">
             </div>
             <div class="input-group">
-                <label>Şifre (Min 8 karakter, harf ve rakam)</label>
+                <label>Şifre (Min 8 karakter, harf/rakam)</label>
                 <input type="password" id="regPass1" placeholder="En az 8 karakter">
             </div>
             <div class="input-group">
@@ -135,6 +144,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
@@ -148,6 +158,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
         // HTML Elementleri
         const loginSection = document.getElementById("loginSection");
@@ -155,7 +166,7 @@
         const formTitle = document.getElementById("formTitle");
         const message = document.getElementById("message");
 
-        // Sayfa Geçiş Butonları
+        // Sayfa Geçişleri
         document.getElementById("goToRegisterBtn").onclick = () => {
             loginSection.classList.add("hidden");
             registerSection.classList.remove("hidden");
@@ -170,7 +181,7 @@
             message.innerText = "";
         };
 
-        // Giriş Yap İşlemi
+        // Giriş Yap
         document.getElementById("loginBtn").onclick = async () => {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -186,23 +197,25 @@
                 message.innerText = "Giriş yapılıyor...";
                 await signInWithEmailAndPassword(auth, email, password);
                 message.style.color = "#00ffcc";
-                message.innerText = "Giriş başarılı! Yönlendiriliyorsunuz...";
+                message.innerText = "Giriş başarılı! Hoş geldiniz.";
             } catch (err) {
                 message.style.color = "#ff4d4d";
                 message.innerText = "Hata: " + err.message;
             }
         };
 
-        // Kayıt Ol İşlemi (Güvenlik Kurallı)
+        // Kayıt Ol (Doğum Tarihi, Telefon ve Şifre Kurallı)
         document.getElementById("registerBtn").onclick = async () => {
             const name = document.getElementById("regName").value.trim();
+            const birthdate = document.getElementById("regBirthdate").value;
+            const phone = document.getElementById("regPhone").value.trim();
             const email = document.getElementById("regEmail").value.trim();
             const p1 = document.getElementById("regPass1").value;
             const p2 = document.getElementById("regPass2").value;
 
-            if (!name || !email || !p1 || !p2) {
+            if (!name || !birthdate || !phone || !email || !p1 || !p2) {
                 message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen tüm alanları doldurunuz.";
+                message.innerText = "Lütfen tüm alanları eksiksiz doldurunuz.";
                 return;
             }
 
@@ -212,7 +225,7 @@
                 return;
             }
 
-            // Şifre kuralı: En az 8 karakter, en az 1 harf ve 1 rakam
+            // Şifre kuralı: En az 8 karakter, harf ve rakam içermeli
             const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
             if (!passwordRegex.test(p1)) {
                 message.style.color = "#ff4d4d";
@@ -223,20 +236,32 @@
             try {
                 message.style.color = "#d1b3ff";
                 message.innerText = "Kayıt oluşturuluyor...";
-                const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
                 
-                await sendEmailVerification(userCredential.user);
+                // 1. Kullanıcıyı Authentication'a kaydet
+                const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
+                const user = userCredential.user;
+
+                // 2. Ek bilgileri Firestore veritabanına kaydet
+                await setDoc(doc(db, "users", user.uid), {
+                    fullName: name,
+                    birthDate: birthdate,
+                    phone: phone,
+                    email: email,
+                    createdAt: new Date()
+                });
+
+                // 3. Doğrulama maili gönder
+                await sendEmailVerification(user);
 
                 message.style.color = "#00ffcc";
-                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi. Lütfen onaylayıp giriş yapın.";
+                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi. Onayladıktan sonra giriş yapabilirsiniz.";
                 
-                // 4 saniye sonra giriş ekranına geri döndür
                 setTimeout(() => {
                     registerSection.classList.add("hidden");
                     loginSection.classList.remove("hidden");
                     formTitle.innerText = "Macera Fonemde";
                     message.innerText = "";
-                }, 4000);
+                }, 5000);
 
             } catch (err) {
                 message.style.color = "#ff4d4d";
