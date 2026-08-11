@@ -31,17 +31,20 @@
             align-items: center;
             z-index: 10;
             transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+            cursor: pointer;
         }
 
         #intro-screen video {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            pointer-events: none;
         }
 
         .fade-out {
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
         }
 
         /* ANA GİRİŞ / KAYIT FORMU KUTUSU */
@@ -116,6 +119,33 @@
         .secondary:hover { 
             background: rgba(121, 40, 202, 0.1); 
         }
+        
+        /* GOOGLE İLE GİRİŞ BUTONU */
+        .google-btn {
+            background-color: #ffffff !important;
+            color: #333333 !important;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        .google-btn:hover {
+            background-color: #f1f1f1 !important;
+            opacity: 1;
+        }
+        .google-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .divider {
+            margin: 12px 0;
+            font-size: 12px;
+            color: #8c73b0;
+        }
+
         .text-btn {
             background: none;
             border: none;
@@ -132,7 +162,7 @@
             opacity: 1;
         }
 
-        /* TARİHİ PARŞÖMEN / RULO SÖZLEŞME EKRANI */
+        /* GERÇEK PARŞÖMEN GÖRSELLİ SÖZLEŞME EKRANI */
         #contract-screen {
             position: fixed;
             top: 0;
@@ -144,22 +174,27 @@
             justify-content: center;
             align-items: center;
             z-index: 20;
-            transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
-        .scroll-container {
-            background: linear-gradient(135deg, #f4e8c1 0%, #e3ce9c 100%);
-            color: #3b2314;
-            width: 90%;
-            max-width: 500px;
-            padding: 40px 30px;
-            border-radius: 8px;
-            border: 4px solid #8b5a2b;
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(139, 90, 43, 0.3);
-            text-align: center;
+        .scroll-wrapper {
             position: relative;
-            animation: unfoldScroll 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            max-width: 650px;
+            height: 85vh;
+            max-height: 800px;
+            background-image: url('parsoemen.jpg'); /* Yüklediğiniz görselin adı */
+            background-size: 100% 100%; /* Görseli tam oturtsun */
+            background-repeat: no-repeat;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12% 14% 10% 14%; /* Yazıların parşömenin kağıt kısmına denk gelmesi için kenar boşlukları */
             box-sizing: border-box;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            animation: unfoldScroll 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes unfoldScroll {
@@ -169,62 +204,52 @@
         }
 
         .scroll-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
-            margin-bottom: 15px;
-            color: #4a2e1b;
-            border-bottom: 2px solid #b8860b;
-            padding-bottom: 10px;
+            color: #3b2314;
+            text-align: center;
             text-transform: uppercase;
             letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
         }
 
         .scroll-text-box {
-            max-height: 220px;
+            flex-grow: 1;
             overflow-y: auto;
             text-align: left;
             font-size: 14px;
             line-height: 1.6;
             color: #2c1810;
-            background: rgba(255, 253, 240, 0.6);
-            padding: 15px;
-            border: 1px solid #d4af37;
-            border-radius: 4px;
-            margin-bottom: 20px;
+            padding-right: 5px;
         }
 
-        .wax-seal {
-            width: 60px;
-            height: 60px;
-            background: #a81c1c;
-            border-radius: 50%;
-            margin: 0 auto 15px auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #ffd700;
-            font-weight: bold;
-            font-size: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 2px dashed #ff6b6b;
+        /* Kaydırma çubuğunu parşömen rengine uyduralım */
+        .scroll-text-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scroll-text-box::-webkit-scrollbar-thumb {
+            background: #8b5a2b;
+            border-radius: 3px;
         }
 
         .approve-btn {
-            background: linear-gradient(135deg, #b8860b, #daa520);
-            color: #2b1700;
+            background: linear-gradient(135deg, #8b5a2b, #5c3a21);
+            color: #fff3d1;
             font-weight: bold;
-            border: 2px solid #8b6508;
-            padding: 14px;
-            border-radius: 8px;
+            border: 2px solid #3b2314;
+            padding: 12px;
+            border-radius: 6px;
             cursor: pointer;
             width: 100%;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4);
+            font-size: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             transition: all 0.2s;
+            margin-top: 15px;
         }
 
         .approve-btn:hover {
-            background: linear-gradient(135deg, #daa520, #ffd700);
+            background: linear-gradient(135deg, #a06835, #6d4428);
             transform: translateY(-2px);
         }
 
@@ -248,8 +273,7 @@
     </div>
 
     <div id="contract-screen" class="hidden">
-        <div class="scroll-container">
-            <div class="wax-seal">⚜</div>
+        <div class="scroll-wrapper">
             <div class="scroll-title">Altın Peşinde - Gizli Sözleşme</div>
             <div class="scroll-text-box">
                 <p><strong>Değerli Maceracı,</strong></p>
@@ -257,7 +281,7 @@
                 <p>1. Oyuncu ipuçlarını tamamen kendi iradesiyle takip eder.<br>
                 2. Verilen bilgiler hukuki ve doğrulama amaçlı saklanır.<br>
                 3. Kurallara uymayanlar diskalifiye edilir.</p>
-                <p><em>(Buraya kendi metninizi yazabilirsiniz.)</em></p>
+                <p><em>(Buraya kendi sözleşme metninizi yazabilirsiniz.)</em></p>
             </div>
             <button id="approveContractBtn" class="approve-btn">Onaylıyorum ve Maceraya Başlıyorum</button>
         </div>
@@ -277,6 +301,13 @@
                 <input type="password" id="loginPassword" placeholder="******">
             </div>
             <button id="loginBtn">Giriş Yap</button>
+            
+            <button id="googleLoginBtn" class="google-btn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                Google ile Giriş Yap
+            </button>
+
+            <div class="divider">veya</div>
             <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
             <button id="forgotPasswordBtn" class="text-btn">Şifremi Unuttum?</button>
         </div>
@@ -315,20 +346,22 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // VİDEO GEÇİŞ KONTROLÜ
         const introVideo = document.getElementById("introVideo");
-        introVideo.onended = () => {
-            document.getElementById("intro-screen").classList.add("fade-out");
-        };
+        const introScreen = document.getElementById("intro-screen");
 
-        setTimeout(() => {
-            const intro = document.getElementById("intro-screen");
-            if (!intro.classList.contains("fade-out")) {
-                intro.classList.add("fade-out");
+        function closeIntro() {
+            if (introScreen && !introScreen.classList.contains("fade-out")) {
+                introScreen.classList.add("fade-out");
+                try { introVideo.pause(); } catch(e) {}
             }
-        }, 9000);
+        }
+
+        introVideo.onended = closeIntro;
+        introScreen.onclick = closeIntro;
 
         const firebaseConfig = {
             apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
@@ -364,7 +397,7 @@
             message.innerText = "";
         };
 
-        // GİRİŞ YAP -> Başarılı olursa direkt sözleşme parşömenini aç
+        // GİRİŞ YAP
         document.getElementById("loginBtn").onclick = async () => {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -384,15 +417,14 @@
 
                 if (!user.emailVerified) {
                     message.style.color = "#ff4d4d";
-                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayarak hesabınızı onaylayın! (Spam klasörünü kontrol edin)";
+                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayın! (Spam klasörünü kontrol edin)";
                     return;
                 }
 
-                // Giriş başarılı ve onaylı -> Parşömen sözleşmeyi ekrana getir
                 message.innerText = "";
                 loginSection.classList.add("hidden");
-                document.querySelector(".container").style.display = "none"; // Giriş kutusunu gizle
-                contractScreen.classList.remove("hidden"); // Sözleşmeyi rulo halinde aç
+                document.querySelector(".container").style.display = "none";
+                contractScreen.classList.remove("hidden");
 
             } catch (err) {
                 message.style.color = "#ff4d4d";
@@ -400,12 +432,41 @@
             }
         };
 
-        // SÖZLEŞMEYİ ONAYLAYINCA GEÇİŞ YAPILACAK YER
+        // GOOGLE İLE GİRİŞ YAP
+        document.getElementById("googleLoginBtn").onclick = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Google ile bağlanılıyor...";
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (!userDoc.exists()) {
+                    await setDoc(doc(db, "users", user.uid), {
+                        fullName: user.displayName || "Google Kullanıcısı",
+                        email: user.email,
+                        phone: "Belirtilmemiş",
+                        birthDate: "Belirtilmemiş",
+                        createdAt: new Date()
+                    });
+                }
+
+                message.innerText = "";
+                loginSection.classList.add("hidden");
+                document.querySelector(".container").style.display = "none";
+                contractScreen.classList.remove("hidden");
+
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Google Giriş Hatası: " + err.message;
+            }
+        };
+
+        // SÖZLEŞMEYİ ONAYLAMA
         document.getElementById("approveContractBtn").onclick = () => {
-            // Kullanıcı sözleşmeyi onayladı, artık bir sonraki aşamaya (harita ekranına) geçebiliriz!
             contractScreen.classList.add("hidden");
-            alert("Sözleşme onaylandı! Maceranın harita ekranına hoş geldiniz.");
-            // İleride buraya harita videosunu veya ekranını getireceğiz.
+            alert("Sözleşme onaylandı! Maceraya hazır olun.");
         };
 
         // ŞİFREMİ UNUTTUM
@@ -413,7 +474,7 @@
             const email = document.getElementById("loginEmail").value.trim();
             if (!email) {
                 message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen e-posta adresinizi yazın, ardından 'Şifremi Unuttum' butonuna basın.";
+                message.innerText = "Lütfen e-posta adresinizi yazın.";
                 return;
             }
             try {
@@ -458,7 +519,7 @@
 
             try {
                 message.style.color = "#ffd700";
-                message.innerText = "Maceraya kayıt oluşturuluyor...";
+                message.innerText = "Maceraya kayıt oluşturuluyor ve onay maili gönderiliyor...";
                 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
                 const user = userCredential.user;
@@ -474,7 +535,7 @@
                 await sendEmailVerification(user);
 
                 message.style.color = "#00ffcc";
-                message.innerText = "Kayıt başarılı! Doğrulama maili gönderildi. Onayladıktan sonra giriş yapabilirsiniz.";
+                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.";
                 
                 setTimeout(() => {
                     registerSection.classList.add("hidden");
