@@ -261,7 +261,7 @@
             border-color: rgba(255, 215, 0, 0.8);
         }
 
-        /* MACERA OYUN EKRANI (ANAHTAR VE KİLİT) */
+        /* MACERA OYUN EKRANI */
         #adventure-screen {
             position: fixed;
             top: 0;
@@ -275,6 +275,14 @@
             z-index: 25;
             padding: 15px;
             box-sizing: border-box;
+            transition: transform 0.8s ease, opacity 0.8s ease;
+        }
+
+        /* HAZİNE KAPISI ARALANMA (AÇILMA) ANİMASYONU */
+        .door-open-anim {
+            transform: scale(1.8);
+            opacity: 0;
+            filter: brightness(2) drop-shadow(0 0 30px #ffd700);
         }
 
         .adventure-box {
@@ -302,7 +310,6 @@
             font-family: 'Cinzel', serif;
         }
 
-        /* KİLİT / ANAHTAR ANİMASYON BUTONU */
         .lock-btn {
             background: none;
             border: none;
@@ -334,7 +341,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(5, 2, 10, 0.8);
+            background: rgba(5, 2, 10, 0.85);
             backdrop-filter: blur(4px);
             display: flex;
             justify-content: center;
@@ -344,32 +351,43 @@
 
         .modal-box {
             background: rgba(30, 15, 50, 0.95);
-            border: 2px solid #7928ca;
-            padding: 25px 30px;
+            border: 2px solid #ffd700;
+            padding: 30px;
             border-radius: 16px;
-            max-width: 380px;
+            max-width: 400px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(120, 50, 200, 0.5);
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+            animation: modalPopup 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPopup {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         .modal-text {
-            font-size: 15px;
-            line-height: 1.5;
-            color: #fff;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #ffd700;
             margin-bottom: 20px;
-            word-break: break-word;
+            font-family: 'Cinzel', serif;
         }
 
         .modal-btn {
             background: linear-gradient(135deg, #7928ca, #b100ff);
             color: white;
             border: none;
-            padding: 10px 25px;
+            padding: 12px 30px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(121, 40, 202, 0.4);
+        }
+
+        .modal-btn:hover {
+            opacity: 0.9;
         }
 
         .hidden {
@@ -387,7 +405,7 @@
         <button class="skip-btn" id="skipVideoBtn">İntroyu Geç</button>
     </div>
 
-    <!-- EKRAN ORTASI BİLDİRİM MODALI -->
+    <!-- EKRAN ORTASI BİLDİRİM / TEBRİK MODALI -->
     <div id="modal-overlay" class="hidden">
         <div class="modal-box">
             <p id="modalMessage" class="modal-text">Bildirim metni burada yer alacak.</p>
@@ -415,7 +433,7 @@
 
     <!-- MACERA / BULMACA EKRANI -->
     <div id="adventure-screen" class="hidden">
-        <div class="adventure-box">
+        <div class="adventure-box" id="adventureBoxContainer">
             <h2 id="adventureTitle">1. Aşama</h2>
             <p id="clueText" class="clue-text">İpucu metni burada yükleniyor...</p>
             <div class="input-group">
@@ -480,7 +498,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // 10 AŞAMALI İPUÇLARI VE DOĞRU ANAHTAR KELİMELER (Bunları dilediğiniz gibi güncelleyebilirsiniz)
         const adventureSteps = [
             { clue: "Müziğin ve sesin kalbinde, stüdyonun ilk sırrı saklı. Girişteki ilk ritmi bul.", answer: "ritim" },
             { clue: "İkinci anahtar ışıkların altındadır. Sahnenin renklerini hatırla.", answer: "sahne" },
@@ -546,12 +563,12 @@
         const registerSection = document.getElementById("registerSection");
         const contractScreen = document.getElementById("contract-screen");
         const adventureScreen = document.getElementById("adventure-screen");
+        const adventureBoxContainer = document.getElementById("adventureBoxContainer");
         const formTitle = document.getElementById("formTitle");
 
         let activeUserId = null;
         let currentStep = 1;
 
-        // Kullanıcı giriş yaptığında veya sözleşme onaylandığında çağrılacak akış yönlendirici
         async function evaluateUserNavigation(userId) {
             activeUserId = userId;
             const userDocRef = doc(db, "users", userId);
@@ -588,7 +605,7 @@
             adventureScreen.classList.remove("hidden");
         }
 
-        // KİLİT AÇMA VE ANAHTAR KONTROLÜ
+        // KİLİT AÇMA VE HAZİNE KAPISI ARALANMA ANİMASYONU
         document.getElementById("unlockBtn").onclick = async () => {
             const userInputValue = document.getElementById("keyInput").value.trim().toLowerCase();
             const correctKeyword = adventureSteps[currentStep - 1].answer.toLowerCase();
@@ -602,9 +619,13 @@
                 const unlockBtn = document.getElementById("unlockBtn");
                 unlockBtn.classList.add("unlock-animation");
 
+                // Hazine kapısının aralanma efekti (ekranın büyümesi/ışıldaması)
+                setTimeout(() => {
+                    adventureBoxContainer.classList.add("door-open-anim");
+                }, 300);
+
                 currentStep++;
 
-                // Veritabanında kullanıcının kaldığı adımı güncelle
                 try {
                     const userDocRef = doc(db, "users", activeUserId);
                     await updateDoc(userDocRef, { currentKeyStep: currentStep });
@@ -613,10 +634,18 @@
                     await setDoc(userDocRef, { currentKeyStep: currentStep }, { merge: true });
                 }
 
+                // Animasyon bittikten sonra tebrik mesajını ve "hazır mısınız?" butonunu göster
                 setTimeout(() => {
-                    unlockBtn.classList.remove("unlock-animation");
-                    openAdventureStep(currentStep);
-                }, 600);
+                    adventureBoxContainer.classList.remove("door-open-anim");
+                    adventureScreen.classList.add("hidden");
+                    
+                    showMessage(
+                        "Tebrikler Maceracı! Hazinenin kapısı aralanıyor...\n\nSonraki ipucu için hazır mısınız?", 
+                        () => {
+                            openAdventureStep(currentStep);
+                        }
+                    );
+                }, 900);
 
             } else {
                 showMessage("Yanlış anahtar kelime! İpucunu tekrar dikkatlice okuyun.");
@@ -635,7 +664,6 @@
             formTitle.innerText = "Altın Peşinde - Giriş";
         };
 
-        // GİRİŞ YAP
         document.getElementById("loginBtn").onclick = async () => {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -661,7 +689,6 @@
             }
         };
 
-        // SÖZLEŞMEYİ ONAYLAMA
         document.getElementById("approveContractBtn").onclick = async () => {
             if (!activeUserId) return;
 
