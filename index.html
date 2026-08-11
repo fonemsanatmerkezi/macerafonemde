@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Altın Peşinde - Macera Fonemde</title>
-    <!-- Google Fonts: Antik/El Yazısı tarzı fontlar eklendi -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=IM+Fell+English:ital@0;1&family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
         body { 
@@ -20,7 +19,6 @@
             overflow: hidden;
         }
 
-        /* VİDEO AÇILIŞ EKRANI (INTRO) */
         #intro-screen {
             position: fixed;
             top: 0;
@@ -39,7 +37,6 @@
             display: block;
         }
 
-        /* VİDEOYU GEÇ BUTONU */
         .skip-btn {
             position: fixed;
             bottom: 25px;
@@ -74,7 +71,6 @@
             pointer-events: none;
         }
 
-        /* ANA GİRİŞ / KAYIT FORMU KUTUSU */
         .container { 
             background: rgba(30, 15, 50, 0.9); 
             padding: 30px; 
@@ -163,7 +159,7 @@
             opacity: 1;
         }
 
-        /* GERÇEK PARŞÖMEN GÖRSELLİ SÖZLEŞME EKRANI */
+        /* SÖZLEŞME EKRANI */
         #contract-screen {
             position: fixed;
             top: 0;
@@ -227,15 +223,6 @@
             padding-right: 8px;
         }
 
-        .scroll-text-box::-webkit-scrollbar {
-            width: 6px;
-        }
-        .scroll-text-box::-webkit-scrollbar-thumb {
-            background: #8b5a2b;
-            border-radius: 3px;
-        }
-
-        /* MUM MÜHÜR (WAX SEAL) BUTON TASARIMI */
         .wax-seal-container {
             display: flex;
             justify-content: center;
@@ -274,11 +261,73 @@
             border-color: rgba(255, 215, 0, 0.8);
         }
 
-        .approve-btn:active {
-            transform: scale(0.98);
+        /* MACERA OYUN EKRANI (ANAHTAR VE KİLİT) */
+        #adventure-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 3, 20, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 25;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
-        /* EKRAN ORTASI BİLDİRİM (MODAL) PENCERESİ */
+        .adventure-box {
+            background: rgba(30, 15, 50, 0.95);
+            border: 2px solid #ffd700;
+            padding: 35px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+            animation: fadeInBox 0.5s ease;
+        }
+
+        @keyframes fadeInBox {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .clue-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #ffd700;
+            margin-bottom: 25px;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* KİLİT / ANAHTAR ANİMASYON BUTONU */
+        .lock-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 40px;
+            transition: transform 0.4s ease;
+            outline: none;
+        }
+
+        .lock-btn:hover {
+            transform: scale(1.15);
+        }
+
+        .unlock-animation {
+            animation: unlockAnim 0.6s ease forwards;
+        }
+
+        @keyframes unlockAnim {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(-20deg) scale(1.3); filter: drop-shadow(0 0 15px #ffd700); }
+            100% { transform: rotate(15deg) scale(0); opacity: 0; }
+        }
+
+        /* EKRAN ORTASI BİLDİRİM MODALI */
         #modal-overlay {
             position: fixed;
             top: 0;
@@ -302,12 +351,6 @@
             width: 90%;
             text-align: center;
             box-shadow: 0 10px 40px rgba(120, 50, 200, 0.5);
-            animation: modalPopup 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes modalPopup {
-            0% { transform: scale(0.7); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
         }
 
         .modal-text {
@@ -327,11 +370,6 @@
             font-weight: bold;
             font-size: 14px;
             cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .modal-btn:hover {
-            opacity: 0.9;
         }
 
         .hidden {
@@ -357,6 +395,7 @@
         </div>
     </div>
 
+    <!-- SÖZLEŞME EKRANI -->
     <div id="contract-screen" class="hidden">
         <div class="scroll-wrapper">
             <div class="scroll-title">Altın Peşinde<br>Gizli Sözleşme</div>
@@ -371,6 +410,19 @@
             <div class="wax-seal-container">
                 <button id="approveContractBtn" class="approve-btn">ONAYLA VE MACERAYA BAŞLA</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MACERA / BULMACA EKRANI -->
+    <div id="adventure-screen" class="hidden">
+        <div class="adventure-box">
+            <h2 id="adventureTitle">1. Aşama</h2>
+            <p id="clueText" class="clue-text">İpucu metni burada yükleniyor...</p>
+            <div class="input-group">
+                <label id="inputLabel">1. anahtarı girin</label>
+                <input type="text" id="keyInput" placeholder="Anahtar kelime...">
+            </div>
+            <button id="unlockBtn" class="lock-btn" title="Kilidi Aç">🔒</button>
         </div>
     </div>
 
@@ -428,7 +480,20 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // EKRAN ORTASI MESAJ GÖSTERME FONKSİYONU
+        // 10 AŞAMALI İPUÇLARI VE DOĞRU ANAHTAR KELİMELER (Bunları dilediğiniz gibi güncelleyebilirsiniz)
+        const adventureSteps = [
+            { clue: "Müziğin ve sesin kalbinde, stüdyonun ilk sırrı saklı. Girişteki ilk ritmi bul.", answer: "ritim" },
+            { clue: "İkinci anahtar ışıkların altındadır. Sahnenin renklerini hatırla.", answer: "sahne" },
+            { clue: "Üçüncü ipucu: Kahvelerin kokusunun yayıldığı köşe...", answer: "kahve" },
+            { clue: "Dördüncü ipucu: Kayıt odasındaki mikrofonun gizli frekansı.", answer: "frekans" },
+            { clue: "Beşinci ipucu: Fonem'in duvarlarındaki nostaljik melodi.", answer: "melodi" },
+            { clue: "Altıncı ipucu: Provaların yapıldığı odanın gizli numarası.", answer: "oda" },
+            { clue: "Yedinci ipucu: Altının izini sürenlerin geçtiği son kapı.", answer: "altin" },
+            { clue: "Sekizinci ipucu: Gece yarısı yankılanan akorlar.", answer: "akor" },
+            { clue: "Dokuzuncu ipucu: Büyük hazineye çok az kaldı, mühür nerede?", answer: "muhur" },
+            { clue: "Onuncu ipucu: Son anahtar, macerayı başlatan o büyük kelime.", answer: "fonem" }
+        ];
+
         const modalOverlay = document.getElementById("modal-overlay");
         const modalMessage = document.getElementById("modalMessage");
         const modalCloseBtn = document.getElementById("modalCloseBtn");
@@ -449,7 +514,6 @@
             }
         };
 
-        // VİDEO GEÇİŞ KONTROLÜ
         const introVideo = document.getElementById("introVideo");
         const introScreen = document.getElementById("intro-screen");
         const skipVideoBtn = document.getElementById("skipVideoBtn");
@@ -481,9 +545,83 @@
         const loginSection = document.getElementById("loginSection");
         const registerSection = document.getElementById("registerSection");
         const contractScreen = document.getElementById("contract-screen");
+        const adventureScreen = document.getElementById("adventure-screen");
         const formTitle = document.getElementById("formTitle");
 
         let activeUserId = null;
+        let currentStep = 1;
+
+        // Kullanıcı giriş yaptığında veya sözleşme onaylandığında çağrılacak akış yönlendirici
+        async function evaluateUserNavigation(userId) {
+            activeUserId = userId;
+            const userDocRef = doc(db, "users", userId);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                const contractApproved = data.contractApproved === true;
+                currentStep = data.currentKeyStep || 1;
+
+                loginSection.classList.add("hidden");
+                document.querySelector(".container").style.display = "none";
+
+                if (!contractApproved) {
+                    contractScreen.classList.remove("hidden");
+                } else {
+                    openAdventureStep(currentStep);
+                }
+            }
+        }
+
+        function openAdventureStep(stepNumber) {
+            contractScreen.classList.add("hidden");
+            if (stepNumber > adventureSteps.length) {
+                showMessage("Tebrikler Maceracı! Tüm aşamaları tamamladın ve büyük hazineye ulaştın!");
+                adventureScreen.classList.add("hidden");
+                return;
+            }
+
+            document.getElementById("adventureTitle").innerText = `${stepNumber}. Aşama`;
+            document.getElementById("clueText").innerText = adventureSteps[stepNumber - 1].clue;
+            document.getElementById("inputLabel").innerText = `${stepNumber}. anahtarı girin`;
+            document.getElementById("keyInput").value = "";
+            adventureScreen.classList.remove("hidden");
+        }
+
+        // KİLİT AÇMA VE ANAHTAR KONTROLÜ
+        document.getElementById("unlockBtn").onclick = async () => {
+            const userInputValue = document.getElementById("keyInput").value.trim().toLowerCase();
+            const correctKeyword = adventureSteps[currentStep - 1].answer.toLowerCase();
+
+            if (!userInputValue) {
+                showMessage("Lütfen anahtar kelimeyi giriniz.");
+                return;
+            }
+
+            if (userInputValue === correctKeyword) {
+                const unlockBtn = document.getElementById("unlockBtn");
+                unlockBtn.classList.add("unlock-animation");
+
+                currentStep++;
+
+                // Veritabanında kullanıcının kaldığı adımı güncelle
+                try {
+                    const userDocRef = doc(db, "users", activeUserId);
+                    await updateDoc(userDocRef, { currentKeyStep: currentStep });
+                } catch (e) {
+                    const userDocRef = doc(db, "users", activeUserId);
+                    await setDoc(userDocRef, { currentKeyStep: currentStep }, { merge: true });
+                }
+
+                setTimeout(() => {
+                    unlockBtn.classList.remove("unlock-animation");
+                    openAdventureStep(currentStep);
+                }, 600);
+
+            } else {
+                showMessage("Yanlış anahtar kelime! İpucunu tekrar dikkatlice okuyun.");
+            }
+        };
 
         document.getElementById("goToRegisterBtn").onclick = () => {
             loginSection.classList.add("hidden");
@@ -516,27 +654,7 @@
                     return;
                 }
 
-                activeUserId = user.uid;
-
-                const userDocRef = doc(db, "users", user.uid);
-                const userDoc = await getDoc(userDocRef);
-
-                let contractApproved = false;
-                if (userDoc.exists()) {
-                    contractApproved = userDoc.data().contractApproved === true;
-                }
-
-                loginSection.classList.add("hidden");
-                document.querySelector(".container").style.display = "none";
-
-                if (!contractApproved) {
-                    // İlk kez giriyorsa parşömeni göster (Araya başka modal girmesin diye modal kapalı tutuluyor)
-                    modalOverlay.classList.add("hidden");
-                    contractScreen.classList.remove("hidden");
-                } else {
-                    // Daha önce onayladıysa direkt karşılama mesajı göster
-                    showMessage("Tekrar hoş geldiniz Maceracı! Maceraya devam ediyorsunuz.");
-                }
+                await evaluateUserNavigation(user.uid);
 
             } catch (err) {
                 showMessage("Hata: " + err.message);
@@ -550,24 +668,24 @@
             try {
                 const userDocRef = doc(db, "users", activeUserId);
                 await updateDoc(userDocRef, {
-                    contractApproved: true
+                    contractApproved: true,
+                    currentKeyStep: 1
                 });
 
-                contractScreen.classList.add("hidden");
-                showMessage("Sözleşme onaylandı! Maceraya hazır olun.");
+                currentStep = 1;
+                openAdventureStep(1);
             } catch (err) {
                 try {
                     const userDocRef = doc(db, "users", activeUserId);
-                    await setDoc(userDocRef, { contractApproved: true }, { merge: true });
-                    contractScreen.classList.add("hidden");
-                    showMessage("Sözleşme onaylandı! Maceraya hazır olun.");
+                    await setDoc(userDocRef, { contractApproved: true, currentKeyStep: 1 }, { merge: true });
+                    currentStep = 1;
+                    openAdventureStep(1);
                 } catch (innerErr) {
                     showMessage("Onay kaydedilirken bir hata oluştu: " + innerErr.message);
                 }
             }
         };
 
-        // ŞİFREMİ UNUTTUM
         document.getElementById("forgotPasswordBtn").onclick = async () => {
             const email = document.getElementById("loginEmail").value.trim();
             if (!email) {
@@ -582,7 +700,6 @@
             }
         };
 
-        // KAYIT OL
         document.getElementById("registerBtn").onclick = async () => {
             const name = document.getElementById("regName").value.trim();
             const birthdate = document.getElementById("regBirthdate").value;
@@ -617,6 +734,7 @@
                     phone: phone,
                     email: email,
                     contractApproved: false,
+                    currentKeyStep: 1,
                     createdAt: new Date()
                 });
 
