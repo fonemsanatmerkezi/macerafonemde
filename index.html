@@ -6,7 +6,7 @@
     <title>Altın Peşinde - Macera Fonemde</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Pinyon+Script&display=swap" rel="stylesheet">
     
     <style>
         body { 
@@ -158,16 +158,16 @@
             justify-content: center;
             align-items: center;
             z-index: 20;
-            padding: 15px;
+            padding: 10px;
             box-sizing: border-box;
         }
 
         .scroll-wrapper {
             position: relative;
             width: 100%;
-            max-width: 580px;
-            height: 85vh;
-            max-height: 720px;
+            max-width: 680px;
+            height: 88vh;
+            max-height: 820px;
             background-image: url('parsoemen.jpg'); 
             background-size: 100% 100%;
             background-repeat: no-repeat;
@@ -175,4 +175,141 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* Yazıların silindirlerin arasında, kağıt üzerinde
+            /* Yazıların parşömen kağıt alanına tam oturması için üst/alt/yan boşluklar */
+            padding: 14% 16% 10% 16%; 
+            box-sizing: border-box;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+            animation: unfoldScroll 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes unfoldScroll {
+            0% { transform: scaleY(0.05) scaleX(0.2); opacity: 0; }
+            50% { transform: scaleY(1.05) scaleX(1); opacity: 1; }
+            100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+        }
+
+        .scroll-title {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c1810;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
+        }
+
+        .scroll-text-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            text-align: left;
+            font-family: 'Cinzel', serif;
+            font-size: 15px; /* Okunaklı ve ideal antika yazı boyutu */
+            line-height: 1.7;
+            color: #25130a;
+            padding-right: 8px;
+        }
+
+        .scroll-text-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scroll-text-box::-webkit-scrollbar-thumb {
+            background: #8b5a2b;
+            border-radius: 3px;
+        }
+
+        /* MUM MÜHÜR BUTONU */
+        .seal-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .wax-seal-btn {
+            background-image: url('muhur.png'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            border: none;
+            width: 80px; /* Zarif, küçük mühür boyutu */
+            height: 80px;
+            cursor: pointer;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+            transition: transform 0.2s, filter 0.2s;
+            display: inline-block;
+        }
+
+        .wax-seal-btn:hover {
+            transform: scale(1.1) rotate(4deg);
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.8)) brightness(1.1);
+        }
+
+        .seal-label {
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            color: #3b2314;
+            font-weight: bold;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        #message { 
+            margin-top: 15px; 
+            font-size: 13px; 
+            word-break: break-all;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="intro-screen">
+        <video id="introVideo" autoplay muted playsinline>
+            <source src="anasayfafonem.mp4" type="video/mp4">
+            Tarayıcınız video etiketini desteklemiyor.
+        </video>
+    </div>
+
+    <div id="contract-screen" class="hidden">
+        <div class="scroll-wrapper">
+            <div class="scroll-title">Altın Peşinde - Gizli Sözleşme</div>
+            <div class="scroll-text-box">
+                <p><strong>Değerli Maceracı,</strong></p>
+                <p>Bu parşömen, "Altın Peşinde" adı altında düzenlenen 1 gram altın ödüllü büyük macera oyununun gizlilik, katılım ve güvenlik kurallarını içerir.</p>
+                <p>1. Oyuncu ipuçlarını tamamen kendi iradesiyle takip eder.<br>
+                2. Verilen bilgiler hukuki ve doğrulama amaçlı saklanır.<br>
+                3. Kurallara uymayanlar diskalifiye edilir.</p>
+                <p><em>(Buraya kendi sözleşme metninizi yazabilirsiniz.)</em></p>
+            </div>
+            
+            <div class="seal-container">
+                <button id="approveContractBtn" class="wax-seal-btn" title="Mührü basmak için tıklayın"></button>
+                <div class="seal-label">Onaylıyorum ve Maceraya Hazırım</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <img src="logo.png" alt="Fonem Logo" class="form-logo" onerror="this.style.display='none'">
+        <h2 id="formTitle">Altın Peşinde - Giriş</h2>
+        
+        <div id="loginSection">
+            <div class="input-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="loginEmail" placeholder="ornek@mail.com">
+            </div>
+            <div class="input-group">
+                <label>Şifre</label>
+                <input type="password" id="loginPassword" placeholder="******">
+            </div>
+            <button id="loginBtn">Giriş Yap</button>
+
+            <div class="divider">veya</div>
+            <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
+            <button id="forgotPasswordBtn" class="text-btn">Şifremi Unuttum?</button>
+        </div>
+
+        <div id="register
