@@ -3,63 +3,271 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Altın Peşinde - Maceraya Başla</title>
+    <title>Macera Fonemde - Giriş</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #0f051d; 
+            color: #fff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
         }
-
-        .container {
-            position: relative;
+        .container { 
+            background: rgba(30, 15, 50, 0.9); 
+            padding: 30px; 
+            border-radius: 16px; 
             width: 100%;
-            max-width: 640px;
+            max-width: 380px;
+            text-align: center; 
+            border: 1px solid #7928ca; 
+            box-shadow: 0 8px 32px rgba(120, 50, 200, 0.3);
+            box-sizing: border-box; 
+            margin: 20px;
         }
-
-        video {
-            width: 100%;
+        h2 {
+            color: #d1b3ff;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        label {
             display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: #bfa1e6;
         }
-
-        #parchment {
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            border-radius: 8px; 
+            border: 1px solid #4a2875; 
+            background: #19092d; 
+            color: white; 
+            box-sizing: border-box; 
+            outline: none; 
+        }
+        input:focus { 
+            border-color: #9b51e0; 
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 10px; 
+            border: none; 
+            border-radius: 8px; 
+            background: linear-gradient(135deg, #7928ca, #b100ff); 
+            color: white; 
+            font-weight: bold; 
+            font-size: 15px;
+            cursor: pointer; 
+            transition: opacity 0.2s;
+        }
+        button:hover { 
+            opacity: 0.9; 
+        }
+        .secondary { 
+            background: transparent; 
+            border: 1px solid #7928ca; 
+        }
+        .secondary:hover { 
+            background: rgba(121, 40, 202, 0.1); 
+        }
+        #message { 
+            margin-top: 15px; 
+            font-size: 13px; 
+            word-break: break-all;
+        }
+        .hidden {
             display: none;
-            background-color: #f4ecd8;
-            padding: 40px;
-            text-align: center;
-            border: 2px solid #8b5a2b;
-            font-family: serif;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div id="videoWrapper">
-            <video id="promoVideo" autoplay muted playsinline>
-                <source src="anasayfafonem.mp4" type="video/mp4">
-            </video>
+        <h2 id="formTitle">Macera Fonemde</h2>
+        
+        <!-- Giriş Ekranı Alanları -->
+        <div id="loginSection">
+            <div class="input-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="loginEmail" placeholder="ornek@mail.com">
+            </div>
+            <div class="input-group">
+                <label>Şifre</label>
+                <input type="password" id="loginPassword" placeholder="******">
+            </div>
+            <button id="loginBtn">Giriş Yap</button>
+            <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
         </div>
 
-        <div id="parchment">
-            <h1>Maceraya Başla</h1>
-            <p>Ankara'nın gizli hazinesi seni bekliyor.</p>
+        <!-- Kayıt Ol Ekranı Alanları (Doğum Tarihi ve Telefon Eklendi) -->
+        <div id="registerSection" class="hidden">
+            <div class="input-group">
+                <label>Ad Soyad</label>
+                <input type="text" id="regName" placeholder="Adınız Soyadınız">
+            </div>
+            <div class="input-group">
+                <label>Doğum Tarihi</label>
+                <input type="date" id="regBirthdate">
+            </div>
+            <div class="input-group">
+                <label>Telefon Numarası</label>
+                <input type="tel" id="regPhone" placeholder="0555...">
+            </div>
+            <div class="input-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="regEmail" placeholder="ornek@mail.com">
+            </div>
+            <div class="input-group">
+                <label>Şifre (Min 8 karakter, harf/rakam)</label>
+                <input type="password" id="regPass1" placeholder="En az 8 karakter">
+            </div>
+            <div class="input-group">
+                <label>Şifreyi Tekrar Girin</label>
+                <input type="password" id="regPass2" placeholder="Şifrenizi onaylayın">
+            </div>
+            <button id="registerBtn">Kayıt Ol ve Onay Maili Gönder</button>
+            <button id="backToLoginBtn" class="secondary">Geri Dön</button>
         </div>
+        
+        <p id="message"></p>
     </div>
 
-    <script>
-        const video = document.getElementById('promoVideo');
-        const videoWrapper = document.getElementById('videoWrapper');
-        const parchment = document.getElementById('parchment');
+    <!-- Firebase Kodları -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        video.addEventListener('ended', () => {
-            videoWrapper.style.display = 'none';
-            parchment.style.display = 'block';
-        });
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
+            authDomain: "macerafonemde.firebaseapp.com",
+            projectId: "macerafonemde",
+            storageBucket: "macerafonemde.firebasestorage.app",
+            messagingSenderId: "59091076960",
+            appId: "1:59091076960:web:459d45f325fd7d1d788005",
+            measurementId: "G-1SED6PGTC7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // HTML Elementleri
+        const loginSection = document.getElementById("loginSection");
+        const registerSection = document.getElementById("registerSection");
+        const formTitle = document.getElementById("formTitle");
+        const message = document.getElementById("message");
+
+        // Sayfa Geçişleri
+        document.getElementById("goToRegisterBtn").onclick = () => {
+            loginSection.classList.add("hidden");
+            registerSection.classList.remove("hidden");
+            formTitle.innerText = "Yeni Hesap Oluştur";
+            message.innerText = "";
+        };
+
+        document.getElementById("backToLoginBtn").onclick = () => {
+            registerSection.classList.add("hidden");
+            loginSection.classList.remove("hidden");
+            formTitle.innerText = "Macera Fonemde";
+            message.innerText = "";
+        };
+
+        // Giriş Yap
+        document.getElementById("loginBtn").onclick = async () => {
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
+
+            if (!email || !password) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen e-posta ve şifrenizi giriniz.";
+                return;
+            }
+
+            try {
+                message.style.color = "#d1b3ff";
+                message.innerText = "Giriş yapılıyor...";
+                await signInWithEmailAndPassword(auth, email, password);
+                message.style.color = "#00ffcc";
+                message.innerText = "Giriş başarılı! Hoş geldiniz.";
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
+        };
+
+        // Kayıt Ol (Doğum Tarihi, Telefon ve Şifre Kurallı)
+        document.getElementById("registerBtn").onclick = async () => {
+            const name = document.getElementById("regName").value.trim();
+            const birthdate = document.getElementById("regBirthdate").value;
+            const phone = document.getElementById("regPhone").value.trim();
+            const email = document.getElementById("regEmail").value.trim();
+            const p1 = document.getElementById("regPass1").value;
+            const p2 = document.getElementById("regPass2").value;
+
+            if (!name || !birthdate || !phone || !email || !p1 || !p2) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen tüm alanları eksiksiz doldurunuz.";
+                return;
+            }
+
+            if (p1 !== p2) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Şifreler uyuşmuyor!";
+                return;
+            }
+
+            // Şifre kuralı: En az 8 karakter, harf ve rakam içermeli
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+            if (!passwordRegex.test(p1)) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Şifre en az 8 karakter olmalı, harf ve rakam içermelidir!";
+                return;
+            }
+
+            try {
+                message.style.color = "#d1b3ff";
+                message.innerText = "Kayıt oluşturuluyor...";
+                
+                // 1. Kullanıcıyı Authentication'a kaydet
+                const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
+                const user = userCredential.user;
+
+                // 2. Ek bilgileri Firestore veritabanına kaydet
+                await setDoc(doc(db, "users", user.uid), {
+                    fullName: name,
+                    birthDate: birthdate,
+                    phone: phone,
+                    email: email,
+                    createdAt: new Date()
+                });
+
+                // 3. Doğrulama maili gönder
+                await sendEmailVerification(user);
+
+                message.style.color = "#00ffcc";
+                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi. Onayladıktan sonra giriş yapabilirsiniz.";
+                
+                setTimeout(() => {
+                    registerSection.classList.add("hidden");
+                    loginSection.classList.remove("hidden");
+                    formTitle.innerText = "Macera Fonemde";
+                    message.innerText = "";
+                }, 5000);
+
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
+        };
     </script>
 </body>
 </html>
