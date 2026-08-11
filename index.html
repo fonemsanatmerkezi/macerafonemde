@@ -30,7 +30,7 @@
             justify-content: center;
             align-items: center;
             z-index: 10;
-            transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+            transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
             cursor: pointer;
         }
 
@@ -38,6 +38,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            pointer-events: none;
         }
 
         .fade-out {
@@ -353,32 +354,21 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // VİDEO GEÇİŞ KONTROLÜ (Garantili Çözüm)
+        // VİDEO GEÇİŞ KONTROLÜ (İlk versiyondaki gibi güvenli ve akıcı)
         const introVideo = document.getElementById("introVideo");
         const introScreen = document.getElementById("intro-screen");
-        let introClosed = false;
 
         function closeIntro() {
-            if (!introClosed && introScreen) {
-                introClosed = true;
+            if (introScreen && !introScreen.classList.contains("fade-out")) {
                 introScreen.classList.add("fade-out");
                 try { introVideo.pause(); } catch(e) {}
             }
         }
 
-        // 1. Ekranın herhangi bir yerine tıklama veya dokunma garantisi
-        document.addEventListener("click", closeIntro);
-        document.addEventListener("touchstart", closeIntro);
-        document.addEventListener("keydown", closeIntro);
-
-        // 2. Video bittiğinde otomatik kapat
         introVideo.onended = closeIntro;
-
-        // 3. Tarayıcı video hatası verirse veya takılırsa otomatik kapat
-        introVideo.onerror = closeIntro;
-
-        // 4. Her ihtimale karşı en geç 3.5 saniye sonra zorunlu kapat (Asla takılı kalmaz)
-        setTimeout(closeIntro, 3500);
+        
+        // Ekstra güvenlik: Videoya veya ekrana tıklandığında anında geçiş
+        introScreen.onclick = closeIntro;
 
         const firebaseConfig = {
             apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
