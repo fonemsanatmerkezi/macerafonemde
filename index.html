@@ -600,7 +600,7 @@
                 return;
             }
 
-            // Metinleri ve başlıkları güvenli bir şekilde güncelle
+            // Metinleri, başlıkları ve input alanını güncelle
             document.getElementById("adventureTitle").innerText = `${stepNumber}. Aşama`;
             document.getElementById("clueText").innerText = adventureSteps[stepNumber - 1].clue;
             document.getElementById("inputLabel").innerText = `${stepNumber}. anahtarı girin`;
@@ -608,18 +608,23 @@
             const keyInputEl = document.getElementById("keyInput");
             if (keyInputEl) keyInputEl.value = "";
 
-            // Kilit butonunun üzerindeki animasyon sınıflarını temizleyip tekrar görünür yapıyoruz
+            // Kilit butonunun üzerindeki animasyon sınıflarını kesin olarak temizle ve görünür kıl
             const unlockBtn = document.getElementById("unlockBtn");
             if (unlockBtn) {
                 unlockBtn.classList.remove("unlock-animation");
                 unlockBtn.style.transform = "none";
                 unlockBtn.style.opacity = "1";
                 unlockBtn.style.display = "inline-block";
+                unlockBtn.style.visibility = "visible";
             }
 
-            // Kutunun kapı açılma animasyon sınıfı kalmışsa temizle
+            // Kutunun animasyon sınıflarını tamamen sıfırla
             adventureBoxContainer.classList.remove("door-open-anim");
+            adventureBoxContainer.style.transform = "scale(1)";
+            adventureBoxContainer.style.opacity = "1";
 
+            // Ekranın tam görünür ve esnek yapıda olmasını garantile
+            adventureScreen.style.display = "flex";
             adventureScreen.classList.remove("hidden");
         }
 
