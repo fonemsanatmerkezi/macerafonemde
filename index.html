@@ -163,7 +163,7 @@
             opacity: 1;
         }
 
-        /* GERÇEK PARŞÖMEN GÖRSELLİ SÖZLEŞME EKRANI (GÜNCELLENMİŞ MARJLAR VE FONT) */
+        /* GERÇEK PARŞÖMEN GÖRSELLİ SÖZLEŞME EKRANI */
         #contract-screen {
             position: fixed;
             top: 0;
@@ -182,7 +182,7 @@
         .scroll-wrapper {
             position: relative;
             width: 100%;
-            max-width: 580px; /* Parşömenin okunabilirliğini ve oranını artırmak için optimize edildi */
+            max-width: 580px;
             height: 82vh;
             max-height: 780px;
             background-image: url('parsoemen.jpg');
@@ -192,7 +192,6 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* Parşömenin görsel sınırlarının dışına taşmaması için marjlar genişletildi */
             padding: 18% 22% 16% 22%;
             box-sizing: border-box;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
@@ -221,7 +220,7 @@
             flex-grow: 1;
             overflow-y: auto;
             text-align: left;
-            font-family: 'IM Fell English', serif; /* Antik/El yazması tarzı okunabilir font */
+            font-family: 'IM Fell English', serif;
             font-size: 15px;
             line-height: 1.5;
             color: #211107;
@@ -236,7 +235,7 @@
             border-radius: 3px;
         }
 
-        /* ESKİ TARZ MUM MÜHÜR (WAX SEAL) BUTON TASARIMI */
+        /* MUM MÜHÜR (WAX SEAL) BUTON TASARIMI */
         .wax-seal-container {
             display: flex;
             justify-content: center;
@@ -249,7 +248,6 @@
             font-family: 'Cinzel', serif;
             font-weight: 700;
             border: 3px dashed rgba(255, 215, 0, 0.4);
-            /* Tam daire mum mühür görünümü */
             width: 140px;
             height: 140px;
             border-radius: 50%;
@@ -261,7 +259,6 @@
             justify-content: center;
             padding: 15px;
             box-sizing: border-box;
-            /* Derinlik ve balmumu parlaklık efektleri */
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), inset 0 3px 6px rgba(255, 255, 255, 0.25), inset 0 -4px 8px rgba(0, 0, 0, 0.4);
             transition: all 0.3s ease;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
@@ -301,6 +298,7 @@
         <button class="skip-btn" id="skipVideoBtn">İntroyu Geç</button>
     </div>
 
+    <!-- Sözleşme ekranı varsayılan olarak hidden (gizli) başlar, kontrol JavaScript ile sağlanacak -->
     <div id="contract-screen" class="hidden">
         <div class="scroll-wrapper">
             <div class="scroll-title">Altın Peşinde<br>Gizli Sözleşme</div>
@@ -372,7 +370,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         // VİDEO GEÇİŞ KONTROLÜ
         const introVideo = document.getElementById("introVideo");
@@ -408,6 +406,9 @@
         const contractScreen = document.getElementById("contract-screen");
         const formTitle = document.getElementById("formTitle");
         const message = document.getElementById("message");
+
+        // Giriş yapmış kullanıcının ID'sini saklamak için global değişken
+        let activeUserId = null;
 
         document.getElementById("goToRegisterBtn").onclick = () => {
             loginSection.classList.add("hidden");
@@ -447,10 +448,28 @@
                     return;
                 }
 
+                activeUserId = user.uid;
+
+                // Firestore'dan kullanıcının sözleşmeyi onaylayıp onaylamadığını kontrol et
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
+
+                let contractApproved = false;
+                if (userDoc.exists()) {
+                    contractApproved = userDoc.data().contractApproved === true;
+                }
+
                 message.innerText = "";
                 loginSection.classList.add("hidden");
                 document.querySelector(".container").style.display = "none";
-                contractScreen.classList.remove("hidden");
+
+                if (!contractApproved) {
+                    // Daha önce onaylamadıysa parşömeni göster
+                    contractScreen.classList.remove("hidden");
+                } else {
+                    // Daha önce onayladıysa direkt oyuna/maceraya yönlendir (parşömen gösterilmez)
+                    alert("Tekrar hoş geldiniz Maceracı! Maceraya devam ediyorsunuz.");
+                }
 
             } catch (err) {
                 message.style.color = "#ff4d4d";
@@ -458,10 +477,30 @@
             }
         };
 
-        // SÖZLEŞMEYİ ONAYLAMA
-        document.getElementById("approveContractBtn").onclick = () => {
-            contractScreen.classList.add("hidden");
-            alert("Sözleşme onaylandı! Maceraya hazır olun.");
+        // SÖZLEŞMEYİ ONAYLAMA (VERİTABANINA KAYDETME)
+        document.getElementById("approveContractBtn").onclick = async () => {
+            if (!activeUserId) return;
+
+            try {
+                // Firestore'da kullanıcının sözleşme onay durumunu true yapıyoruz
+                const userDocRef = doc(db, "users", activeUserId);
+                await updateDoc(userDocRef, {
+                    contractApproved: true
+                });
+
+                contractScreen.classList.add("hidden");
+                alert("Sözleşme onaylandı! Maceraya hazır olun.");
+            } catch (err) {
+                // Eğer döküman henüz yoksa setDoc ile güncelleyebiliriz
+                try {
+                    const userDocRef = doc(db, "users", activeUserId);
+                    await setDoc(userDocRef, { contractApproved: true }, { merge: true });
+                    contractScreen.classList.add("hidden");
+                    alert("Sözleşme onaylandı! Maceraya hazır olun.");
+                } catch (innerErr) {
+                    alert("Onay kaydedilirken bir hata oluştu: " + innerErr.message);
+                }
+            }
         };
 
         // ŞİFREMİ UNUTTUM
@@ -486,7 +525,7 @@
 
         // KAYIT OL
         document.getElementById("registerBtn").onclick = async () => {
-            const name = document.getElementById("regName", ).value.trim();
+            const name = document.getElementById("regName").value.trim();
             const birthdate = document.getElementById("regBirthdate").value;
             const phone = document.getElementById("regPhone").value.trim();
             const email = document.getElementById("regEmail").value.trim();
@@ -519,11 +558,13 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
                 const user = userCredential.user;
 
+                // Yeni kayıt olan kullanıcı için başlangıçta contractApproved: false olarak kaydedilir
                 await setDoc(doc(db, "users", user.uid), {
                     fullName: name,
                     birthDate: birthdate,
                     phone: phone,
                     email: email,
+                    contractApproved: false,
                     createdAt: new Date()
                 });
 
