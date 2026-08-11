@@ -275,13 +275,13 @@
             z-index: 25;
             padding: 15px;
             box-sizing: border-box;
-            transition: transform 0.8s ease, opacity 0.8s ease;
         }
 
         .door-open-anim {
             transform: scale(1.8);
             opacity: 0;
             filter: brightness(2) drop-shadow(0 0 30px #ffd700);
+            transition: transform 0.6s ease, opacity 0.6s ease;
         }
 
         .adventure-box {
@@ -293,12 +293,6 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
-            animation: fadeInBox 0.5s ease;
-        }
-
-        @keyframes fadeInBox {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
         }
 
         .clue-text {
@@ -442,7 +436,10 @@
                 <label id="inputLabel">1. anahtarı girin</label>
                 <input type="text" id="keyInput" placeholder="Anahtar kelime...">
             </div>
-            <button id="unlockBtn" class="lock-btn" title="Kilidi Aç">🔒</button>
+            <!-- Kilit butonu dinamik olarak yönetilecek -->
+            <div id="lockButtonWrapper">
+                <button id="unlockBtn" class="lock-btn" title="Kilidi Aç">🔒</button>
+            </div>
         </div>
     </div>
 
@@ -566,6 +563,7 @@
         const contractScreen = document.getElementById("contract-screen");
         const adventureScreen = document.getElementById("adventure-screen");
         const adventureBoxContainer = document.getElementById("adventureBoxContainer");
+        const lockButtonWrapper = document.getElementById("lockButtonWrapper");
         const formTitle = document.getElementById("formTitle");
 
         let activeUserId = null;
@@ -592,6 +590,58 @@
             }
         }
 
+        // Kilit butonunu ve işlevini her aşamada tazeleyen güvenli fonksiyon
+        function setupUnlockButton() {
+            lockButtonWrapper.innerHTML = `<button id="unlockBtn" class="lock-btn" title="Kilidi Aç">🔒</button>`;
+            
+            document.getElementById("unlockBtn").onclick = async () => {
+                const keyInputEl = document.getElementById("keyInput");
+                const unlockBtn = document.getElementById("unlockBtn");
+                const userInputValue = keyInputEl ? keyInputEl.value.trim().toLowerCase() : "";
+                
+                if (currentStep > adventureSteps.length) return;
+                const correctKeyword = adventureSteps[currentStep - 1].answer.toLowerCase();
+
+                if (!userInputValue) {
+                    showMessage("Lütfen anahtar kelimeyi giriniz.");
+                    return;
+                }
+
+                if (userInputValue === correctKeyword) {
+                    if (unlockBtn) unlockBtn.classList.add("unlock-animation");
+
+                    setTimeout(() => {
+                        adventureBoxContainer.classList.add("door-open-anim");
+                    }, 300);
+
+                    currentStep++;
+
+                    try {
+                        const userDocRef = doc(db, "users", activeUserId);
+                        await updateDoc(userDocRef, { currentKeyStep: currentStep });
+                    } catch (e) {
+                        const userDocRef = doc(db, "users", activeUserId);
+                        await setDoc(userDocRef, { currentKeyStep: currentStep }, { merge: true });
+                    }
+
+                    setTimeout(() => {
+                        adventureBoxContainer.classList.remove("door-open-anim");
+                        adventureScreen.classList.add("hidden");
+                        
+                        showMessage(
+                            "Tebrikler Maceracı! Hazinenin kapısı aralanıyor...\n\nSonraki ipucu için hazır mısınız?", 
+                            () => {
+                                openAdventureStep(currentStep);
+                            }
+                        );
+                    }, 900);
+
+                } else {
+                    showMessage("Yanlış anahtar kelime! İpucunu tekrar dikkatlice okuyun.");
+                }
+            };
+        }
+
         function openAdventureStep(stepNumber) {
             contractScreen.classList.add("hidden");
             if (stepNumber > adventureSteps.length) {
@@ -608,73 +658,18 @@
             const keyInputEl = document.getElementById("keyInput");
             if (keyInputEl) keyInputEl.value = "";
 
-            // Kilit butonunun üzerindeki animasyon sınıflarını kesin olarak temizle ve görünür kıl
-            const unlockBtn = document.getElementById("unlockBtn");
-            if (unlockBtn) {
-                unlockBtn.classList.remove("unlock-animation");
-                unlockBtn.style.transform = "none";
-                unlockBtn.style.opacity = "1";
-                unlockBtn.style.display = "inline-block";
-                unlockBtn.style.visibility = "visible";
-            }
-
-            // Kutunun animasyon sınıflarını tamamen sıfırla
+            // Kutunun animasyon sınıflarını sıfırla
             adventureBoxContainer.classList.remove("door-open-anim");
             adventureBoxContainer.style.transform = "scale(1)";
             adventureBoxContainer.style.opacity = "1";
 
-            // Ekranın tam görünür ve esnek yapıda olmasını garantile
+            // Butonu tamamen yeniden oluşturarak DOM'a ekle (Kayıp sorununu kökten çözer)
+            setupUnlockButton();
+
+            // Ekranı görünür yap
             adventureScreen.style.display = "flex";
             adventureScreen.classList.remove("hidden");
         }
-
-        // KİLİT AÇMA VE HAZİNE KAPISI ARALANMA MANTIĞI
-        document.getElementById("unlockBtn").onclick = async () => {
-            const keyInputEl = document.getElementById("keyInput");
-            const unlockBtn = document.getElementById("unlockBtn");
-            const userInputValue = keyInputEl ? keyInputEl.value.trim().toLowerCase() : "";
-            
-            if (currentStep > adventureSteps.length) return;
-            const correctKeyword = adventureSteps[currentStep - 1].answer.toLowerCase();
-
-            if (!userInputValue) {
-                showMessage("Lütfen anahtar kelimeyi giriniz.");
-                return;
-            }
-
-            if (userInputValue === correctKeyword) {
-                if (unlockBtn) unlockBtn.classList.add("unlock-animation");
-
-                setTimeout(() => {
-                    adventureBoxContainer.classList.add("door-open-anim");
-                }, 300);
-
-                currentStep++;
-
-                try {
-                    const userDocRef = doc(db, "users", activeUserId);
-                    await updateDoc(userDocRef, { currentKeyStep: currentStep });
-                } catch (e) {
-                    const userDocRef = doc(db, "users", activeUserId);
-                    await setDoc(userDocRef, { currentKeyStep: currentStep }, { merge: true });
-                }
-
-                setTimeout(() => {
-                    adventureBoxContainer.classList.remove("door-open-anim");
-                    adventureScreen.classList.add("hidden");
-                    
-                    showMessage(
-                        "Tebrikler Maceracı! Hazinenin kapısı aralanıyor...\n\nSonraki ipucu için hazır mısınız?", 
-                        () => {
-                            openAdventureStep(currentStep);
-                        }
-                    );
-                }, 900);
-
-            } else {
-                showMessage("Yanlış anahtar kelime! İpucunu tekrar dikkatlice okuyun.");
-            }
-        };
 
         document.getElementById("goToRegisterBtn").onclick = () => {
             loginSection.classList.add("hidden");
