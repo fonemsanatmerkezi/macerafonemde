@@ -45,6 +45,29 @@
             pointer-events: none;
         }
 
+        /* Video takılırsa kullanıcı kolayca geçebilsin diye şık buton */
+        .skip-intro-btn {
+            position: absolute;
+            bottom: 40px;
+            background: linear-gradient(135deg, #7928ca, #b100ff);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(121, 40, 202, 0.6);
+            z-index: 11;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
+            transition: transform 0.2s;
+        }
+
+        .skip-intro-btn:hover {
+            transform: scale(1.05);
+        }
+
         .fade-out {
             opacity: 0;
             visibility: hidden;
@@ -175,4 +198,141 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* Yazıların silindirlerin arasında, kağıt üzerinde
+            padding: 16% 15% 12% 15%; 
+            box-sizing: border-box;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+            animation: unfoldScroll 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes unfoldScroll {
+            0% { transform: scaleY(0.05) scaleX(0.2); opacity: 0; }
+            50% { transform: scaleY(1.05) scaleX(1); opacity: 1; }
+            100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+        }
+
+        .scroll-title {
+            font-family: 'Cinzel', serif;
+            font-size: 19px;
+            font-weight: 700;
+            color: #2c1810;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .scroll-text-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            text-align: left;
+            font-family: 'IM Fell English', serif;
+            font-size: 14.5px;
+            line-height: 1.55;
+            color: #25130a;
+            padding-right: 5px;
+        }
+
+        .scroll-text-box::-webkit-scrollbar {
+            width: 5px;
+        }
+        .scroll-text-box::-webkit-scrollbar-thumb {
+            background: #8b5a2b;
+            border-radius: 3px;
+        }
+
+        /* GERÇEK MÜHÜR BUTONU VE İSTENEN YAZI */
+        .seal-container {
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .wax-seal-btn {
+            background-image: url('muhur.png'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            border: none;
+            width: 60px; 
+            height: 60px;
+            cursor: pointer;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
+            transition: transform 0.2s, filter 0.2s;
+            display: inline-block;
+        }
+
+        .wax-seal-btn:hover {
+            transform: scale(1.1) rotate(3deg);
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8)) brightness(1.1);
+        }
+
+        .seal-label {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            color: #3b2314;
+            font-weight: bold;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        #message { 
+            margin-top: 15px; 
+            font-size: 13px; 
+            word-break: break-all;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="intro-screen">
+        <video id="introVideo" autoplay muted playsinline>
+            <source src="anasayfafonem.mp4" type="video/mp4">
+            Tarayıcınız video etiketini desteklemiyor.
+        </video>
+        <button class="skip-intro-btn" id="skipBtn">Maceraya Başla</button>
+    </div>
+
+    <div id="contract-screen" class="hidden">
+        <div class="scroll-wrapper">
+            <div class="scroll-title">Altın Peşinde - Gizli Sözleşme</div>
+            <div class="scroll-text-box">
+                <p><strong>Değerli Maceracı,</strong></p>
+                <p>Bu parşömen, "Altın Peşinde" adı altında düzenlenen 1 gram altın ödüllü büyük macera oyununun gizlilik, katılım ve güvenlik kurallarını içerir.</p>
+                <p>1. Oyuncu ipuçlarını tamamen kendi iradesiyle takip eder.<br>
+                2. Verilen bilgiler hukuki ve doğrulama amaçlı saklanır.<br>
+                3. Kurallara uymayanlar diskalifiye edilir.</p>
+            </div>
+            
+            <div class="seal-container">
+                <button id="approveContractBtn" class="wax-seal-btn" title="Mührü basmak için tıklayın"></button>
+                <div class="seal-label">Onayla ve Maceraya Başla</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <img src="logo.png" alt="Fonem Logo" class="form-logo" onerror="this.style.display='none'">
+        <h2 id="formTitle">Altın Peşinde - Giriş</h2>
+        
+        <div id="loginSection">
+            <div class="input-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="loginEmail" placeholder="ornek@mail.com">
+            </div>
+            <div class="input-group">
+                <label>Şifre</label>
+                <input type="password" id="loginPassword" placeholder="******">
+            </div>
+            <button id="loginBtn">Giriş Yap</button>
+
+            <div class="divider">veya</div>
+            <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
+            <button id="forgotPasswordBtn" class="text-btn">Şifremi Unuttum?</button>
+        </div>
+
+        <div id="registerSection" class="hidden">
+            <div class="input-group">
+                <label>Ad Soyad</label>
