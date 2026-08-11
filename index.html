@@ -278,11 +278,62 @@
             transform: scale(0.98);
         }
 
-        #message { 
-            margin-top: 15px; 
-            font-size: 13px; 
-            word-break: break-all;
+        /* EKRAN ORTASI BİLDİRİM (MODAL) PENCERESİ */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 2, 10, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
         }
+
+        .modal-box {
+            background: rgba(30, 15, 50, 0.95);
+            border: 2px solid #7928ca;
+            padding: 25px 30px;
+            border-radius: 16px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(120, 50, 200, 0.5);
+            animation: modalPopup 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPopup {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-text {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #fff;
+            margin-bottom: 20px;
+            word-break: break-word;
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, #7928ca, #b100ff);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .modal-btn:hover {
+            opacity: 0.9;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -298,7 +349,14 @@
         <button class="skip-btn" id="skipVideoBtn">İntroyu Geç</button>
     </div>
 
-    <!-- Sözleşme ekranı varsayılan olarak hidden (gizli) başlar, kontrol JavaScript ile sağlanacak -->
+    <!-- EKRAN ORTASI BİLDİRİM MODALI -->
+    <div id="modal-overlay" class="hidden">
+        <div class="modal-box">
+            <p id="modalMessage" class="modal-text">Bildirim metni burada yer alacak.</p>
+            <button id="modalCloseBtn" class="modal-btn">Tamam</button>
+        </div>
+    </div>
+
     <div id="contract-screen" class="hidden">
         <div class="scroll-wrapper">
             <div class="scroll-title">Altın Peşinde<br>Gizli Sözleşme</div>
@@ -363,14 +421,26 @@
             <button id="registerBtn">Kayıt Ol ve Onay Maili Gönder</button>
             <button id="backToLoginBtn" class="secondary">Geri Dön</button>
         </div>
-        
-        <p id="message"></p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // EKRAN ORTASI MESAJ GÖSTERME FONKSİYONU
+        const modalOverlay = document.getElementById("modal-overlay");
+        const modalMessage = document.getElementById("modalMessage");
+        const modalCloseBtn = document.getElementById("modalCloseBtn");
+
+        function showMessage(text) {
+            modalMessage.innerText = text;
+            modalOverlay.classList.remove("hidden");
+        }
+
+        modalCloseBtn.onclick = () => {
+            modalOverlay.classList.add("hidden");
+        };
 
         // VİDEO GEÇİŞ KONTROLÜ
         const introVideo = document.getElementById("introVideo");
@@ -405,23 +475,19 @@
         const registerSection = document.getElementById("registerSection");
         const contractScreen = document.getElementById("contract-screen");
         const formTitle = document.getElementById("formTitle");
-        const message = document.getElementById("message");
 
-        // Giriş yapmış kullanıcının ID'sini saklamak için global değişken
         let activeUserId = null;
 
         document.getElementById("goToRegisterBtn").onclick = () => {
             loginSection.classList.add("hidden");
             registerSection.classList.remove("hidden");
             formTitle.innerText = "Altın Peşinde - Kayıt Ol";
-            message.innerText = "";
         };
 
         document.getElementById("backToLoginBtn").onclick = () => {
             registerSection.classList.add("hidden");
             loginSection.classList.remove("hidden");
             formTitle.innerText = "Altın Peşinde - Giriş";
-            message.innerText = "";
         };
 
         // GİRİŞ YAP
@@ -430,27 +496,23 @@
             const password = document.getElementById("loginPassword").value.trim();
 
             if (!email || !password) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen e-posta ve şifrenizi giriniz.";
+                showMessage("Lütfen e-posta ve şifrenizi giriniz.");
                 return;
             }
 
             try {
-                message.style.color = "#ffd700";
-                message.innerText = "Maceraya giriş yapılıyor...";
+                showMessage("Maceraya giriş yapılıyor...");
                 
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
                 if (!user.emailVerified) {
-                    message.style.color = "#ff4d4d";
-                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayın! (Spam klasörünü kontrol edin)";
+                    showMessage("Lütfen önce e-postanıza gelen doğrulama linkine tıklayın! (Spam klasörünü kontrol edin)");
                     return;
                 }
 
                 activeUserId = user.uid;
 
-                // Firestore'dan kullanıcının sözleşmeyi onaylayıp onaylamadığını kontrol et
                 const userDocRef = doc(db, "users", user.uid);
                 const userDoc = await getDoc(userDocRef);
 
@@ -459,30 +521,27 @@
                     contractApproved = userDoc.data().contractApproved === true;
                 }
 
-                message.innerText = "";
                 loginSection.classList.add("hidden");
                 document.querySelector(".container").style.display = "none";
 
                 if (!contractApproved) {
-                    // Daha önce onaylamadıysa parşömeni göster
+                    modalOverlay.classList.add("hidden"); // Açık kalan yükleme mesajını kapat
                     contractScreen.classList.remove("hidden");
                 } else {
-                    // Daha önce onayladıysa direkt oyuna/maceraya yönlendir (parşömen gösterilmez)
+                    modalOverlay.classList.add("hidden");
                     alert("Tekrar hoş geldiniz Maceracı! Maceraya devam ediyorsunuz.");
                 }
 
             } catch (err) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Hata: " + err.message;
+                showMessage("Hata: " + err.message);
             }
         };
 
-        // SÖZLEŞMEYİ ONAYLAMA (VERİTABANINA KAYDETME)
+        // SÖZLEŞMEYİ ONAYLAMA
         document.getElementById("approveContractBtn").onclick = async () => {
             if (!activeUserId) return;
 
             try {
-                // Firestore'da kullanıcının sözleşme onay durumunu true yapıyoruz
                 const userDocRef = doc(db, "users", activeUserId);
                 await updateDoc(userDocRef, {
                     contractApproved: true
@@ -491,14 +550,13 @@
                 contractScreen.classList.add("hidden");
                 alert("Sözleşme onaylandı! Maceraya hazır olun.");
             } catch (err) {
-                // Eğer döküman henüz yoksa setDoc ile güncelleyebiliriz
                 try {
                     const userDocRef = doc(db, "users", activeUserId);
                     await setDoc(userDocRef, { contractApproved: true }, { merge: true });
                     contractScreen.classList.add("hidden");
                     alert("Sözleşme onaylandı! Maceraya hazır olun.");
                 } catch (innerErr) {
-                    alert("Onay kaydedilirken bir hata oluştu: " + innerErr.message);
+                    showMessage("Onay kaydedilirken bir hata oluştu: " + innerErr.message);
                 }
             }
         };
@@ -507,19 +565,15 @@
         document.getElementById("forgotPasswordBtn").onclick = async () => {
             const email = document.getElementById("loginEmail").value.trim();
             if (!email) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen e-posta adresinizi yazın.";
+                showMessage("Lütfen e-posta adresinizi yazın.");
                 return;
             }
             try {
-                message.style.color = "#ffd700";
-                message.innerText = "Şifre sıfırlama bağlantısı gönderiliyor...";
+                showMessage("Şifre sıfırlama bağlantısı gönderiliyor...");
                 await sendPasswordResetEmail(auth, email);
-                message.style.color = "#00ffcc";
-                message.innerText = "Şifre sıfırlama talimatları e-posta adresinize gönderildi.";
+                showMessage("Şifre sıfırlama talimatları e-posta adresinize gönderildi.");
             } catch (err) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Hata: " + err.message;
+                showMessage("Hata: " + err.message);
             }
         };
 
@@ -533,32 +587,27 @@
             const p2 = document.getElementById("regPass2").value;
 
             if (!name || !birthdate || !phone || !email || !p1 || !p2) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen tüm alanları eksiksiz doldurunuz.";
+                showMessage("Lütfen tüm alanları eksiksiz doldurunuz.");
                 return;
             }
 
             if (p1 !== p2) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Şifreler uyuşmuyor!";
+                showMessage("Şifreler uyuşmuyor!");
                 return;
             }
 
             const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&._\-]{8,}$/;
             if (!passwordRegex.test(p1)) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Şifre en az 8 karakter olmalı, en az bir harf ve bir rakam içermelidir.";
+                showMessage("Şifre en az 8 karakter olmalı, en az bir harf ve bir rakam içermelidir.");
                 return;
             }
 
             try {
-                message.style.color = "#ffd700";
-                message.innerText = "Maceraya kayıt oluşturuluyor ve onay maili gönderiliyor...";
+                showMessage("Maceraya kayıt oluşturuluyor ve onay maili gönderiliyor...");
                 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
                 const user = userCredential.user;
 
-                // Yeni kayıt olan kullanıcı için başlangıçta contractApproved: false olarak kaydedilir
                 await setDoc(doc(db, "users", user.uid), {
                     fullName: name,
                     birthDate: birthdate,
@@ -570,19 +619,19 @@
 
                 await sendEmailVerification(user);
 
-                message.style.color = "#00ffcc";
-                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.";
+                // Özel başarılı kayıt modal kapatma yönetimi
+                modalMessage.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.";
+                modalOverlay.classList.remove("hidden");
                 
                 setTimeout(() => {
+                    modalOverlay.classList.add("hidden");
                     registerSection.classList.add("hidden");
                     loginSection.classList.remove("hidden");
                     formTitle.innerText = "Altın Peşinde - Giriş";
-                    message.innerText = "";
                 }, 7000);
 
             } catch (err) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Hata: " + err.message;
+                showMessage("Hata: " + err.message);
             }
         };
     </script>
