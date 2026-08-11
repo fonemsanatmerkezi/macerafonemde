@@ -433,13 +433,20 @@
         const modalMessage = document.getElementById("modalMessage");
         const modalCloseBtn = document.getElementById("modalCloseBtn");
 
-        function showMessage(text) {
+        let onModalCloseCallback = null;
+
+        function showMessage(text, callback = null) {
             modalMessage.innerText = text;
             modalOverlay.classList.remove("hidden");
+            onModalCloseCallback = callback;
         }
 
         modalCloseBtn.onclick = () => {
             modalOverlay.classList.add("hidden");
+            if (onModalCloseCallback) {
+                onModalCloseCallback();
+                onModalCloseCallback = null;
+            }
         };
 
         // VİDEO GEÇİŞ KONTROLÜ
@@ -501,8 +508,8 @@
             }
 
             try {
-                showMessage("Maceraya giriş yapılıyor...");
-                
+                // Giriş kontrolü yapılırken kullanıcıyı bekletmek için modal açıyoruz
+                // İşlem bitince veritabanı durumuna göre parşömen ya da yönlendirme yapılacak
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
@@ -525,11 +532,12 @@
                 document.querySelector(".container").style.display = "none";
 
                 if (!contractApproved) {
-                    modalOverlay.classList.add("hidden"); // Açık kalan yükleme mesajını kapat
+                    // İlk kez giriyorsa ve sözleşmeyi onaylamadıysa parşömen gösterilir
+                    modalOverlay.classList.add("hidden");
                     contractScreen.classList.remove("hidden");
                 } else {
-                    modalOverlay.classList.add("hidden");
-                    alert("Tekrar hoş geldiniz Maceracı! Maceraya devam ediyorsunuz.");
+                    // Daha önce onayladıysa direkt bilgilendirme mesajı gösterilir ve parşömen GELMEZ
+                    showMessage("Tekrar hoş geldiniz Maceracı! Maceraya devam ediyorsunuz.");
                 }
 
             } catch (err) {
@@ -548,13 +556,13 @@
                 });
 
                 contractScreen.classList.add("hidden");
-                alert("Sözleşme onaylandı! Maceraya hazır olun.");
+                showMessage("Sözleşme onaylandı! Maceraya hazır olun.");
             } catch (err) {
                 try {
                     const userDocRef = doc(db, "users", activeUserId);
                     await setDoc(userDocRef, { contractApproved: true }, { merge: true });
                     contractScreen.classList.add("hidden");
-                    alert("Sözleşme onaylandı! Maceraya hazır olun.");
+                    showMessage("Sözleşme onaylandı! Maceraya hazır olun.");
                 } catch (innerErr) {
                     showMessage("Onay kaydedilirken bir hata oluştu: " + innerErr.message);
                 }
@@ -569,7 +577,6 @@
                 return;
             }
             try {
-                showMessage("Şifre sıfırlama bağlantısı gönderiliyor...");
                 await sendPasswordResetEmail(auth, email);
                 showMessage("Şifre sıfırlama talimatları e-posta adresinize gönderildi.");
             } catch (err) {
@@ -603,8 +610,6 @@
             }
 
             try {
-                showMessage("Maceraya kayıt oluşturuluyor ve onay maili gönderiliyor...");
-                
                 const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
                 const user = userCredential.user;
 
@@ -619,16 +624,15 @@
 
                 await sendEmailVerification(user);
 
-                // Özel başarılı kayıt modal kapatma yönetimi
-                modalMessage.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.";
-                modalOverlay.classList.remove("hidden");
-                
-                setTimeout(() => {
-                    modalOverlay.classList.add("hidden");
-                    registerSection.classList.add("hidden");
-                    loginSection.classList.remove("hidden");
-                    formTitle.innerText = "Altın Peşinde - Giriş";
-                }, 7000);
+                // Kayıt başarılı olduğunda modal gösterilir, "Tamam"a basıldığında giriş ekranına dönülür
+                showMessage(
+                    "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.", 
+                    () => {
+                        registerSection.classList.add("hidden");
+                        loginSection.classList.remove("hidden");
+                        formTitle.innerText = "Altın Peşinde - Giriş";
+                    }
+                );
 
             } catch (err) {
                 showMessage("Hata: " + err.message);
