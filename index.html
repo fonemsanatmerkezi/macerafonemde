@@ -37,6 +37,59 @@
             display: block;
         }
 
+        /* 10. ADIM ÖDÜL VİDEOSU EKRANI */
+        #treasure-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #treasure-screen video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .treasure-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            background: rgba(15, 5, 29, 0.75);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+            backdrop-filter: blur(5px);
+            max-width: 500px;
+            margin: 20px;
+        }
+
+        .treasure-content h1 {
+            font-family: 'Cinzel', serif;
+            color: #ffd700;
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+        }
+
+        .treasure-content p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #f3e5ab;
+            font-family: 'Cinzel', serif;
+        }
+
         .skip-btn {
             position: fixed;
             bottom: 25px;
@@ -401,6 +454,19 @@
         <button class="skip-btn" id="skipVideoBtn">İntroyu Geç</button>
     </div>
 
+    <!-- 10. ADIM BÜYÜK HAZİNE SANDIĞI VİDEO EKRANI -->
+    <div id="treasure-screen" class="hidden">
+        <video id="treasureVideo" autoplay playsinline>
+            <source src="hazinesandigi.mp4" type="video/mp4">
+            Tarayıcınız video etiketini desteklemiyor.
+        </video>
+        <div class="treasure-content">
+            <h1>TEBRİKLER!</h1>
+            <p>Macerayı başarıyla tamamladın! Büyük hazine sandığı açıldı ve 1 gram altın ödülünü kazandın!</p>
+            <button id="closeTreasureBtn" class="modal-btn" style="margin-top: 20px;">Harika!</button>
+        </div>
+    </div>
+
     <!-- EKRAN ORTASI BİLDİRİM / TEBRİK MODALI -->
     <div id="modal-overlay" class="hidden">
         <div class="modal-box">
@@ -436,7 +502,6 @@
                 <label id="inputLabel">1. anahtarı girin</label>
                 <input type="text" id="keyInput" placeholder="Anahtar kelime...">
             </div>
-            <!-- Kilit butonu dinamik olarak yönetilecek -->
             <div id="lockButtonWrapper">
                 <button id="unlockBtn" class="lock-btn" title="Kilidi Aç">🔒</button>
             </div>
@@ -513,6 +578,9 @@
         const modalOverlay = document.getElementById("modal-overlay");
         const modalMessage = document.getElementById("modalMessage");
         const modalCloseBtn = document.getElementById("modalCloseBtn");
+        const treasureScreen = document.getElementById("treasure-screen");
+        const treasureVideo = document.getElementById("treasureVideo");
+        const closeTreasureBtn = document.getElementById("closeTreasureBtn");
 
         let onModalCloseCallback = null;
 
@@ -585,12 +653,11 @@
                 if (!contractApproved) {
                     contractScreen.classList.remove("hidden");
                 } else {
-                    openAdventureStep(currentStep);
+                    await openAdventureStep();
                 }
             }
         }
 
-        // Kilit butonunu ve işlevini her aşamada tazeleyen güvenli fonksiyon
         function setupUnlockButton() {
             lockButtonWrapper.innerHTML = `<button id="unlockBtn" class="lock-btn" title="Kilidi Aç">🔒</button>`;
             
@@ -614,26 +681,40 @@
                         adventureBoxContainer.classList.add("door-open-anim");
                     }, 300);
 
+                    const isLastStep = (currentStep === adventureSteps.length);
                     currentStep++;
+
+                    const targetStepToSave = currentStep > adventureSteps.length ? adventureSteps.length + 1 : currentStep;
 
                     try {
                         const userDocRef = doc(db, "users", activeUserId);
-                        await updateDoc(userDocRef, { currentKeyStep: currentStep });
+                        await updateDoc(userDocRef, { currentKeyStep: targetStepToSave });
                     } catch (e) {
                         const userDocRef = doc(db, "users", activeUserId);
-                        await setDoc(userDocRef, { currentKeyStep: currentStep }, { merge: true });
+                        await setDoc(userDocRef, { currentKeyStep: targetStepToSave }, { merge: true });
                     }
 
                     setTimeout(() => {
                         adventureBoxContainer.classList.remove("door-open-anim");
                         adventureScreen.classList.add("hidden");
                         
-                        showMessage(
-                            "Tebrikler Maceracı! Hazinenin kapısı aralanıyor...\n\nSonraki ipucu için hazır mısınız?", 
-                            () => {
-                                openAdventureStep(currentStep);
+                        if (isLastStep) {
+                            // 10. aşama bittiğinde doğrudan sandık açılma videosunu başlat
+                            treasureScreen.classList.remove("hidden");
+                            try {
+                                treasureVideo.currentTime = 0;
+                                treasureVideo.play();
+                            } catch (err) {
+                                console.error("Video oynatılamadı:", err);
                             }
-                        );
+                        } else {
+                            showMessage(
+                                "Tebrikler Maceracı! Hazinenin kapısı aralanıyor...\n\nSonraki ipucu için hazır mısınız?", 
+                                async () => {
+                                    await openAdventureStep();
+                                }
+                            );
+                        }
                     }, 900);
 
                 } else {
@@ -642,31 +723,53 @@
             };
         }
 
-        function openAdventureStep(stepNumber) {
+        // Sandık videosu bittiğinde veya kullanıcı butona bastığında kapatma aksiyonu
+        function finishGame() {
+            try { treasureVideo.pause(); } catch(e) {}
+            treasureScreen.classList.add("hidden");
+        }
+
+        closeTreasureBtn.onclick = finishGame;
+        treasureVideo.onended = finishGame;
+
+        async function openAdventureStep() {
             contractScreen.classList.add("hidden");
-            if (stepNumber > adventureSteps.length) {
-                showMessage("Tebrikler Maceracı! Tüm aşamaları tamamladın ve büyük hazineye ulaştın!");
+
+            if (activeUserId) {
+                try {
+                    const userDocRef = doc(db, "users", activeUserId);
+                    const userDoc = await getDoc(userDocRef);
+                    if (userDoc.exists() && userDoc.data().currentKeyStep) {
+                        currentStep = userDoc.data().currentKeyStep;
+                    }
+                } catch (e) {
+                    console.error("Adım senkronize edilemedi:", e);
+                }
+            }
+
+            if (currentStep > adventureSteps.length) {
                 adventureScreen.classList.add("hidden");
+                treasureScreen.classList.remove("hidden");
+                try {
+                    treasureVideo.currentTime = 0;
+                    treasureVideo.play();
+                } catch(e) {}
                 return;
             }
 
-            // Metinleri, başlıkları ve input alanını güncelle
-            document.getElementById("adventureTitle").innerText = `${stepNumber}. Aşama`;
-            document.getElementById("clueText").innerText = adventureSteps[stepNumber - 1].clue;
-            document.getElementById("inputLabel").innerText = `${stepNumber}. anahtarı girin`;
+            document.getElementById("adventureTitle").innerText = `${currentStep}. Aşama`;
+            document.getElementById("clueText").innerText = adventureSteps[currentStep - 1].clue;
+            document.getElementById("inputLabel").innerText = `${currentStep}. anahtarı girin`;
             
             const keyInputEl = document.getElementById("keyInput");
             if (keyInputEl) keyInputEl.value = "";
 
-            // Kutunun animasyon sınıflarını sıfırla
             adventureBoxContainer.classList.remove("door-open-anim");
             adventureBoxContainer.style.transform = "scale(1)";
             adventureBoxContainer.style.opacity = "1";
 
-            // Butonu tamamen yeniden oluşturarak DOM'a ekle (Kayıp sorununu kökten çözer)
             setupUnlockButton();
 
-            // Ekranı görünür yap
             adventureScreen.style.display = "flex";
             adventureScreen.classList.remove("hidden");
         }
@@ -719,13 +822,13 @@
                 });
 
                 currentStep = 1;
-                openAdventureStep(1);
+                await openAdventureStep();
             } catch (err) {
                 try {
                     const userDocRef = doc(db, "users", activeUserId);
                     await setDoc(userDocRef, { contractApproved: true, currentKeyStep: 1 }, { merge: true });
                     currentStep = 1;
-                    openAdventureStep(1);
+                    await openAdventureStep();
                 } catch (innerErr) {
                     showMessage("Onay kaydedilirken bir hata oluştu: " + innerErr.message);
                 }
