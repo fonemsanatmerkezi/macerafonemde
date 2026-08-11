@@ -37,7 +37,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            pointer-events: none;
         }
 
         /* VİDEOYU GEÇ BUTONU */
@@ -286,12 +285,11 @@
 <body>
 
     <div id="intro-screen">
-        <video id="introVideo" autoplay muted playsinline>
+        <video id="introVideo" autoplay muted playsinline controls>
             <source src="anasayfafonem.mp4" type="video/mp4">
             Tarayıcınız video etiketini desteklemiyor.
         </video>
-        <!-- Skip Butonu Eklendi -->
-        <button class="skip-btn" id="skipVideoBtn">Geç ➔</button>
+        <button class="skip-btn" id="skipVideoBtn">Geç</button>
     </div>
 
     <div id="contract-screen" class="hidden">
@@ -376,8 +374,7 @@
         const introScreen = document.getElementById("intro-screen");
         const skipVideoBtn = document.getElementById("skipVideoBtn");
 
-        function closeIntro(e) {
-            if (e) e.stopPropagation(); // Butona basıldığında arkadaki elementlerin tetiklenmesini önler
+        function closeIntro() {
             if (introScreen && !introScreen.classList.contains("fade-out")) {
                 introScreen.classList.add("fade-out");
                 try { introVideo.pause(); } catch(e) {}
@@ -385,7 +382,7 @@
         }
 
         introVideo.onended = closeIntro;
-        skipVideoBtn.onclick = closeIntro; // Skip butonuna tıklandığında direkt kapatır
+        skipVideoBtn.onclick = closeIntro;
 
         const firebaseConfig = {
             apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
