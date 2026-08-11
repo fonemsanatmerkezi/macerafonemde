@@ -117,11 +117,10 @@
             background: rgba(121, 40, 202, 0.1); 
         }
         
-        /* GOOGLE İLE GİRİŞ BUTONU */
+        /* GOOGLE İLE GİRİŞ BUTONU ÖZEL STİLİ */
         .google-btn {
-            background: #white;
-            color: #333;
-            background-color: #ffffff;
+            background-color: #ffffff !important;
+            color: #333333 !important;
             border: 1px solid #ddd;
             display: flex;
             align-items: center;
@@ -130,7 +129,7 @@
             font-weight: 600;
         }
         .google-btn:hover {
-            background-color: #f1f1f1;
+            background-color: #f1f1f1 !important;
             opacity: 1;
         }
         .google-btn img {
@@ -139,10 +138,9 @@
         }
 
         .divider {
-            margin: 15px 0;
+            margin: 12px 0;
             font-size: 12px;
             color: #8c73b0;
-            position: relative;
         }
 
         .text-btn {
@@ -305,10 +303,12 @@
                 <input type="password" id="loginPassword" placeholder="******">
             </div>
             <button id="loginBtn">Giriş Yap</button>
+            
             <button id="googleLoginBtn" class="google-btn">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
                 Google ile Giriş Yap
             </button>
+
             <div class="divider">veya</div>
             <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
             <button id="forgotPasswordBtn" class="text-btn">Şifremi Unuttum?</button>
@@ -432,7 +432,7 @@
             }
         };
 
-        // GOOGLE İLE GİRİŞ YAP
+        // GOOGLE İLE GİRİŞ YAP İŞLEMİ
         document.getElementById("googleLoginBtn").onclick = async () => {
             const provider = new GoogleAuthProvider();
             try {
@@ -441,13 +441,12 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
 
-                // Veritabanında var mı kontrol et, yoksa kaydet
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (!userDoc.exists()) {
                     await setDoc(doc(db, "users", user.uid), {
                         fullName: user.displayName || "Google Kullanıcısı",
                         email: user.email,
-                        phone: user.phoneNumber || "Belirtilmemiş",
+                        phone: "Belirtilmemiş",
                         birthDate: "Belirtilmemiş",
                         createdAt: new Date()
                     });
@@ -511,45 +510,4 @@
                 return;
             }
 
-            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&._\-]{8,}$/;
-            if (!passwordRegex.test(p1)) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Şifre en az 8 karakter olmalı, en az bir harf ve bir rakam içermelidir.";
-                return;
-            }
-
-            try {
-                message.style.color = "#ffd700";
-                message.innerText = "Maceraya kayıt oluşturuluyor ve onay maili gönderiliyor...";
-                
-                const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
-                const user = userCredential.user;
-
-                await setDoc(doc(db, "users", user.uid), {
-                    fullName: name,
-                    birthDate: birthdate,
-                    phone: phone,
-                    email: email,
-                    createdAt: new Date()
-                });
-
-                await sendEmailVerification(user);
-
-                message.style.color = "#00ffcc";
-                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.";
-                
-                setTimeout(() => {
-                    registerSection.classList.add("hidden");
-                    loginSection.classList.remove("hidden");
-                    formTitle.innerText = "Altın Peşinde - Giriş";
-                    message.innerText = "";
-                }, 7000);
-
-            } catch (err) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Hata: " + err.message;
-            }
-        };
-    </script>
-</body>
-</html>
+            const passwordRegex = /^(?=
