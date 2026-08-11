@@ -37,11 +37,13 @@
             display: block;
         }
 
-        /* VİDEOYU GEÇ BUTONU (SAĞ ALT KÖŞE - SABİT VE GARANTİ) */
+        /* VİDEOYU GEÇ BUTONU (SAĞ ALT KÖŞE - SABİT, KÜÇÜK VE DÜZGÜN BOYUTLU) */
         .skip-btn {
             position: fixed;
             bottom: 25px;
             right: 25px;
+            width: auto;
+            display: inline-block;
             background: rgba(30, 15, 50, 0.85);
             color: #ffd700;
             border: 1px solid #7928ca;
@@ -54,6 +56,7 @@
             backdrop-filter: blur(5px);
             box-shadow: 0 4px 15px rgba(120, 50, 200, 0.5);
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
         .skip-btn:hover {
@@ -516,7 +519,7 @@
         document.getElementById("registerBtn").onclick = async () => {
             const name = document.getElementById("regName").value.trim();
             const birthdate = document.getElementById("regBirthdate").value;
-            const phone = document.getElementById("regPhone.value") || document.getElementById("regPhone").value.trim();
+            const phone = document.getElementById("regPhone").value.trim();
             const email = document.getElementById("regEmail").value.trim();
             const p1 = document.getElementById("regPass1").value;
             const p2 = document.getElementById("regPass2").value;
