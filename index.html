@@ -116,6 +116,35 @@
         .secondary:hover { 
             background: rgba(121, 40, 202, 0.1); 
         }
+        
+        /* GOOGLE İLE GİRİŞ BUTONU */
+        .google-btn {
+            background: #white;
+            color: #333;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        .google-btn:hover {
+            background-color: #f1f1f1;
+            opacity: 1;
+        }
+        .google-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .divider {
+            margin: 15px 0;
+            font-size: 12px;
+            color: #8c73b0;
+            position: relative;
+        }
+
         .text-btn {
             background: none;
             border: none;
@@ -144,7 +173,6 @@
             justify-content: center;
             align-items: center;
             z-index: 20;
-            transition: transform 1s ease-in-out, opacity 1s ease-in-out;
         }
 
         .scroll-container {
@@ -257,7 +285,7 @@
                 <p>1. Oyuncu ipuçlarını tamamen kendi iradesiyle takip eder.<br>
                 2. Verilen bilgiler hukuki ve doğrulama amaçlı saklanır.<br>
                 3. Kurallara uymayanlar diskalifiye edilir.</p>
-                <p><em>(Buraya kendi metninizi yazabilirsiniz.)</em></p>
+                <p><em>(Buraya kendi sözleşme metninizi yazabilirsiniz.)</em></p>
             </div>
             <button id="approveContractBtn" class="approve-btn">Onaylıyorum ve Maceraya Başlıyorum</button>
         </div>
@@ -277,6 +305,11 @@
                 <input type="password" id="loginPassword" placeholder="******">
             </div>
             <button id="loginBtn">Giriş Yap</button>
+            <button id="googleLoginBtn" class="google-btn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                Google ile Giriş Yap
+            </button>
+            <div class="divider">veya</div>
             <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
             <button id="forgotPasswordBtn" class="text-btn">Şifremi Unuttum?</button>
         </div>
@@ -315,8 +348,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const introVideo = document.getElementById("introVideo");
         introVideo.onended = () => {
@@ -364,7 +397,7 @@
             message.innerText = "";
         };
 
-        // GİRİŞ YAP -> Başarılı olursa direkt sözleşme parşömenini aç
+        // GİRİŞ YAP (Mail Onaylı)
         document.getElementById("loginBtn").onclick = async () => {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -384,15 +417,14 @@
 
                 if (!user.emailVerified) {
                     message.style.color = "#ff4d4d";
-                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayarak hesabınızı onaylayın! (Spam klasörünü kontrol edin)";
+                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayın! (Spam klasörünü kontrol edin)";
                     return;
                 }
 
-                // Giriş başarılı ve onaylı -> Parşömen sözleşmeyi ekrana getir
                 message.innerText = "";
                 loginSection.classList.add("hidden");
-                document.querySelector(".container").style.display = "none"; // Giriş kutusunu gizle
-                contractScreen.classList.remove("hidden"); // Sözleşmeyi rulo halinde aç
+                document.querySelector(".container").style.display = "none";
+                contractScreen.classList.remove("hidden");
 
             } catch (err) {
                 message.style.color = "#ff4d4d";
@@ -400,12 +432,42 @@
             }
         };
 
-        // SÖZLEŞMEYİ ONAYLAYINCA GEÇİŞ YAPILACAK YER
+        // GOOGLE İLE GİRİŞ YAP
+        document.getElementById("googleLoginBtn").onclick = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Google ile bağlanılıyor...";
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                // Veritabanında var mı kontrol et, yoksa kaydet
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (!userDoc.exists()) {
+                    await setDoc(doc(db, "users", user.uid), {
+                        fullName: user.displayName || "Google Kullanıcısı",
+                        email: user.email,
+                        phone: user.phoneNumber || "Belirtilmemiş",
+                        birthDate: "Belirtilmemiş",
+                        createdAt: new Date()
+                    });
+                }
+
+                message.innerText = "";
+                loginSection.classList.add("hidden");
+                document.querySelector(".container").style.display = "none";
+                contractScreen.classList.remove("hidden");
+
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Google Giriş Hatası: " + err.message;
+            }
+        };
+
+        // SÖZLEŞMEYİ ONAYLAMA
         document.getElementById("approveContractBtn").onclick = () => {
-            // Kullanıcı sözleşmeyi onayladı, artık bir sonraki aşamaya (harita ekranına) geçebiliriz!
             contractScreen.classList.add("hidden");
-            alert("Sözleşme onaylandı! Maceranın harita ekranına hoş geldiniz.");
-            // İleride buraya harita videosunu veya ekranını getireceğiz.
+            alert("Sözleşme onaylandı! Maceraya hazır olun.");
         };
 
         // ŞİFREMİ UNUTTUM
@@ -413,7 +475,7 @@
             const email = document.getElementById("loginEmail").value.trim();
             if (!email) {
                 message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen e-posta adresinizi yazın, ardından 'Şifremi Unuttum' butonuna basın.";
+                message.innerText = "Lütfen e-posta adresinizi yazın.";
                 return;
             }
             try {
@@ -458,7 +520,7 @@
 
             try {
                 message.style.color = "#ffd700";
-                message.innerText = "Maceraya kayıt oluşturuluyor...";
+                message.innerText = "Maceraya kayıt oluşturuluyor ve onay maili gönderiliyor...";
                 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
                 const user = userCredential.user;
@@ -474,7 +536,7 @@
                 await sendEmailVerification(user);
 
                 message.style.color = "#00ffcc";
-                message.innerText = "Kayıt başarılı! Doğrulama maili gönderildi. Onayladıktan sonra giriş yapabilirsiniz.";
+                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.";
                 
                 setTimeout(() => {
                     registerSection.classList.add("hidden");
