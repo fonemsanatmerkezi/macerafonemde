@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Altın Peşinde - Macera Fonemde</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Pinyon+Script&display=swap" rel="stylesheet">
+    
     <style>
         body { 
             margin: 0; 
@@ -142,7 +146,7 @@
             opacity: 1;
         }
 
-        /* GERÇEK PARŞÖMEN GÖRSELLİ SÖZLEŞME EKRANI */
+        /* PARŞÖMEN SÖZLEŞME EKRANI */
         #contract-screen {
             position: fixed;
             top: 0;
@@ -161,20 +165,20 @@
         .scroll-wrapper {
             position: relative;
             width: 100%;
-            max-width: 750px;
-            height: 90vh;
-            max-height: 850px;
-            background-image: url('parsoemen.jpg'); /* Parşömen görseliniz */
+            max-width: 680px;
+            height: 88vh;
+            max-height: 820px;
+            background-image: url('parsoemen.jpg'); 
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* İç boşluklar: Yazıların parşömenin kağıt kısmına tam oturması için ayarlandı */
-            padding: 14% 18% 12% 18%; 
+            /* Yazıların parşömen kağıt alanına tam oturması için üst/alt/yan boşluklar */
+            padding: 14% 16% 10% 16%; 
             box-sizing: border-box;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
             animation: unfoldScroll 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
@@ -185,26 +189,26 @@
         }
 
         .scroll-title {
+            font-family: 'Cinzel', serif;
             font-size: 24px;
-            font-weight: bold;
+            font-weight: 700;
             color: #2c1810;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             margin-bottom: 12px;
-            font-family: 'Georgia', serif;
-            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
         }
 
         .scroll-text-box {
             flex-grow: 1;
             overflow-y: auto;
             text-align: left;
-            font-size: 16px; /* Yazıların okunabilir ve ideal büyükte olması için punto artırıldı */
+            font-family: 'Cinzel', serif;
+            font-size: 15px; /* Okunaklı ve ideal antika yazı boyutu */
             line-height: 1.7;
-            color: #21120b;
+            color: #25130a;
             padding-right: 8px;
-            font-family: 'Georgia', serif;
         }
 
         .scroll-text-box::-webkit-scrollbar {
@@ -215,42 +219,39 @@
             border-radius: 3px;
         }
 
-        /* KIRMIZI MUM MÜHÜR BUTONU */
-        .wax-seal-container {
+        /* MUM MÜHÜR BUTONU */
+        .seal-container {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .wax-seal-btn {
-            background-image: url('muhur.png'); /* Mühür görseliniz (Eğer görsel yoksa css ile yuvarlak kırmızı mühür efekti verir) */
-            background-size: cover;
-            background-color: #a81c1c; /* Görsel yüklenmezse şık bir kırmızı mühür rengi */
-            border: 3px dashed #ff6b6b;
-            width: 75px;
-            height: 75px;
-            border-radius: 50%;
+            background-image: url('muhur.png'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            border: none;
+            width: 80px; /* Zarif, küçük mühür boyutu */
+            height: 80px;
             cursor: pointer;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 2px 5px rgba(255,255,255,0.3);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
             transition: transform 0.2s, filter 0.2s;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            color: #ffd700;
-            font-weight: bold;
-            font-size: 12px;
+            display: inline-block;
         }
 
         .wax-seal-btn:hover {
-            transform: scale(1.1) rotate(5deg);
-            filter: brightness(1.1);
+            transform: scale(1.1) rotate(4deg);
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.8)) brightness(1.1);
         }
 
         .seal-label {
+            font-family: 'Cinzel', serif;
             font-size: 13px;
             color: #3b2314;
             font-weight: bold;
-            margin-top: 5px;
-            font-family: 'Georgia', serif;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
         }
 
         #message { 
@@ -284,9 +285,9 @@
                 <p><em>(Buraya kendi sözleşme metninizi yazabilirsiniz.)</em></p>
             </div>
             
-            <div class="wax-seal-container">
-                <button id="approveContractBtn" class="wax-seal-btn" title="Onaylamak için tıklayın">İMZA</button>
-                <div class="seal-label">Mühürle ve Maceraya Başla</div>
+            <div class="seal-container">
+                <button id="approveContractBtn" class="wax-seal-btn" title="Mührü basmak için tıklayın"></button>
+                <div class="seal-label">Onaylıyorum ve Maceraya Hazırım</div>
             </div>
         </div>
     </div>
@@ -311,212 +312,4 @@
             <button id="forgotPasswordBtn" class="text-btn">Şifremi Unuttum?</button>
         </div>
 
-        <div id="registerSection" class="hidden">
-            <div class="input-group">
-                <label>Ad Soyad</label>
-                <input type="text" id="regName" placeholder="Adınız Soyadınız">
-            </div>
-            <div class="input-group">
-                <label>Doğum Tarihi</label>
-                <input type="date" id="regBirthdate">
-            </div>
-            <div class="input-group">
-                <label>Telefon Numarası</label>
-                <input type="tel" id="regPhone" placeholder="0555...">
-            </div>
-            <div class="input-group">
-                <label>E-posta Adresi</label>
-                <input type="email" id="regEmail" placeholder="ornek@mail.com">
-            </div>
-            <div class="input-group">
-                <label>Şifre (Min 8 karakter, harf ve rakam)</label>
-                <input type="password" id="regPass1" placeholder="En az 8 karakter">
-            </div>
-            <div class="input-group">
-                <label>Şifreyi Tekrar Girin</label>
-                <input type="password" id="regPass2" placeholder="Şifrenizi onaylayın">
-            </div>
-            <button id="registerBtn">Kayıt Ol ve Onay Maili Gönder</button>
-            <button id="backToLoginBtn" class="secondary">Geri Dön</button>
-        </div>
-        
-        <p id="message"></p>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-        // VİDEO GEÇİŞ KONTROLÜ
-        const introVideo = document.getElementById("introVideo");
-        const introScreen = document.getElementById("intro-screen");
-
-        function closeIntro() {
-            if (introScreen && !introScreen.classList.contains("fade-out")) {
-                introScreen.classList.add("fade-out");
-                try { introVideo.pause(); } catch(e) {}
-            }
-        }
-
-        introVideo.onended = closeIntro;
-        introScreen.onclick = closeIntro;
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
-            authDomain: "macerafonemde.firebaseapp.com",
-            projectId: "macerafonemde",
-            storageBucket: "macerafonemde.firebasestorage.app",
-            messagingSenderId: "59091076960",
-            appId: "1:59091076960:web:459d45f325fd7d1d788005",
-            measurementId: "G-1SED6PGTC7"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const loginSection = document.getElementById("loginSection");
-        const registerSection = document.getElementById("registerSection");
-        const contractScreen = document.getElementById("contract-screen");
-        const formTitle = document.getElementById("formTitle");
-        const message = document.getElementById("message");
-
-        document.getElementById("goToRegisterBtn").onclick = () => {
-            loginSection.classList.add("hidden");
-            registerSection.classList.remove("hidden");
-            formTitle.innerText = "Altın Peşinde - Kayıt Ol";
-            message.innerText = "";
-        };
-
-        document.getElementById("backToLoginBtn").onclick = () => {
-            registerSection.classList.add("hidden");
-            loginSection.classList.remove("hidden");
-            formTitle.innerText = "Altın Peşinde - Giriş";
-            message.innerText = "";
-        };
-
-        // GİRİŞ YAP
-        document.getElementById("loginBtn").onclick = async () => {
-            const email = document.getElementById("loginEmail").value.trim();
-            const password = document.getElementById("loginPassword").value.trim();
-
-            if (!email || !password) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen e-posta ve şifrenizi giriniz.";
-                return;
-            }
-
-            try {
-                message.style.color = "#ffd700";
-                message.innerText = "Maceraya giriş yapılıyor...";
-                
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                if (!user.emailVerified) {
-                    message.style.color = "#ff4d4d";
-                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayın! (Spam klasörünü kontrol edin)";
-                    return;
-                }
-
-                message.innerText = "";
-                loginSection.classList.add("hidden");
-                document.querySelector(".container").style.display = "none";
-                contractScreen.classList.remove("hidden");
-
-            } catch (err) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Hata: " + err.message;
-            }
-        };
-
-        // SÖZLEŞMEYİ ONAYLAMA (MUM MÜHÜR TIKLANDIĞINDA)
-        document.getElementById("approveContractBtn").onclick = () => {
-            contractScreen.classList.add("hidden");
-            alert("Mühür basıldı ve sözleşme onaylandı! Maceraya hazır olun.");
-        };
-
-        // ŞİFREMİ UNUTTUM
-        document.getElementById("forgotPasswordBtn").onclick = async () => {
-            const email = document.getElementById("loginEmail").value.trim();
-            if (!email) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen e-posta adresinizi yazın.";
-                return;
-            }
-            try {
-                message.style.color = "#ffd700";
-                message.innerText = "Şifre sıfırlama bağlantısı gönderiliyor...";
-                await sendPasswordResetEmail(auth, email);
-                message.style.color = "#00ffcc";
-                message.innerText = "Şifre sıfırlama talimatları e-posta adresinize gönderildi.";
-            } catch (err) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Hata: " + err.message;
-            }
-        };
-
-        // KAYIT OL
-        document.getElementById("registerBtn").onclick = async () => {
-            const name = document.getElementById("regName").value.trim();
-            const birthdate = document.getElementById("regBirthdate").value;
-            const phone = document.getElementById("regPhone").value.trim();
-            const email = document.getElementById("regEmail").value.trim();
-            const p1 = document.getElementById("regPass1").value;
-            const p2 = document.getElementById("regPass2").value;
-
-            if (!name || !birthdate || !phone || !email || !p1 || !p2) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen tüm alanları eksiksiz doldurunuz.";
-                return;
-            }
-
-            if (p1 !== p2) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Şifreler uyuşmuyor!";
-                return;
-            }
-
-            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&._\-]{8,}$/;
-            if (!passwordRegex.test(p1)) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Şifre en az 8 karakter olmalı, en az bir harf ve bir rakam içermelidir.";
-                return;
-            }
-
-            try {
-                message.style.color = "#ffd700";
-                message.innerText = "Maceraya kayıt oluşturuluyor ve onay maili gönderiliyor...";
-                
-                const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
-                const user = userCredential.user;
-
-                await setDoc(doc(db, "users", user.uid), {
-                    fullName: name,
-                    birthDate: birthdate,
-                    phone: phone,
-                    email: email,
-                    createdAt: new Date()
-                });
-
-                await sendEmailVerification(user);
-
-                message.style.color = "#00ffcc";
-                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.";
-                
-                setTimeout(() => {
-                    registerSection.classList.add("hidden");
-                    loginSection.classList.remove("hidden");
-                    formTitle.innerText = "Altın Peşinde - Giriş";
-                    message.innerText = "";
-                }, 7000);
-
-            } catch (err) {
-                message.style.color = "#ff4d4d";
-                message.innerText = "Hata: " + err.message;
-            }
-        };
-    </script>
-</body>
-</html>
+        <div id="register
