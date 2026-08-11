@@ -31,7 +31,6 @@
             align-items: center;
             z-index: 10;
             transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
-            cursor: pointer;
         }
 
         #intro-screen video {
@@ -39,6 +38,28 @@
             height: 100%;
             object-fit: cover;
             pointer-events: none;
+        }
+
+        /* VİDEOYU GEÇ BUTONU */
+        .skip-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffd700;
+            border: 1px solid #7928ca;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 11;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .skip-btn:hover {
+            background: rgba(121, 40, 202, 0.4);
+            transform: scale(1.05);
         }
 
         .fade-out {
@@ -184,14 +205,14 @@
             max-width: 650px;
             height: 85vh;
             max-height: 800px;
-            background-image: url('parsoemen.jpg'); /* Yüklediğiniz görselin adı */
-            background-size: 100% 100%; /* Görseli tam oturtsun */
+            background-image: url('parsoemen.jpg');
+            background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 12% 14% 10% 14%; /* Yazıların parşömenin kağıt kısmına denk gelmesi için kenar boşlukları */
+            padding: 12% 14% 10% 14%;
             box-sizing: border-box;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
             animation: unfoldScroll 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -224,7 +245,6 @@
             padding-right: 5px;
         }
 
-        /* Kaydırma çubuğunu parşömen rengine uyduralım */
         .scroll-text-box::-webkit-scrollbar {
             width: 6px;
         }
@@ -270,6 +290,8 @@
             <source src="anasayfafonem.mp4" type="video/mp4">
             Tarayıcınız video etiketini desteklemiyor.
         </video>
+        <!-- Skip Butonu Eklendi -->
+        <button class="skip-btn" id="skipVideoBtn">Geç ➔</button>
     </div>
 
     <div id="contract-screen" class="hidden">
@@ -352,8 +374,10 @@
         // VİDEO GEÇİŞ KONTROLÜ
         const introVideo = document.getElementById("introVideo");
         const introScreen = document.getElementById("intro-screen");
+        const skipVideoBtn = document.getElementById("skipVideoBtn");
 
-        function closeIntro() {
+        function closeIntro(e) {
+            if (e) e.stopPropagation(); // Butona basıldığında arkadaki elementlerin tetiklenmesini önler
             if (introScreen && !introScreen.classList.contains("fade-out")) {
                 introScreen.classList.add("fade-out");
                 try { introVideo.pause(); } catch(e) {}
@@ -361,7 +385,7 @@
         }
 
         introVideo.onended = closeIntro;
-        introScreen.onclick = closeIntro;
+        skipVideoBtn.onclick = closeIntro; // Skip butonuna tıklandığında direkt kapatır
 
         const firebaseConfig = {
             apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
