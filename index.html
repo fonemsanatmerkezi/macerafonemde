@@ -317,6 +317,9 @@
             font-size: 40px;
             transition: transform 0.4s ease;
             outline: none;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .lock-btn:hover {
@@ -597,28 +600,36 @@
                 return;
             }
 
-            // Kutu içeriğini her aşamada sıfırdan oluşturarak kilit butonunun kaybolmasını engelliyoruz
-            adventureBoxContainer.innerHTML = `
-                <h2 id="adventureTitle">${stepNumber}. Aşama</h2>
-                <p id="clueText" class="clue-text">${adventureSteps[stepNumber - 1].clue}</p>
-                <div class="input-group">
-                    <label id="inputLabel">${stepNumber}. anahtarı girin</label>
-                    <input type="text" id="keyInput" placeholder="Anahtar kelime...">
-                </div>
-                <button id="unlockBtn" class="lock-btn" title="Kilidi Aç">🔒</button>
-            `;
+            // Metinleri ve başlıkları güvenli bir şekilde güncelle
+            document.getElementById("adventureTitle").innerText = `${stepNumber}. Aşama`;
+            document.getElementById("clueText").innerText = adventureSteps[stepNumber - 1].clue;
+            document.getElementById("inputLabel").innerText = `${stepNumber}. anahtarı girin`;
+            
+            const keyInputEl = document.getElementById("keyInput");
+            if (keyInputEl) keyInputEl.value = "";
 
-            // Yeni oluşturulan kilit butonuna tıklama olayını tekrar bağlıyoruz
-            document.getElementById("unlockBtn").onclick = handleUnlock;
+            // Kilit butonunun üzerindeki animasyon sınıflarını temizleyip tekrar görünür yapıyoruz
+            const unlockBtn = document.getElementById("unlockBtn");
+            if (unlockBtn) {
+                unlockBtn.classList.remove("unlock-animation");
+                unlockBtn.style.transform = "none";
+                unlockBtn.style.opacity = "1";
+                unlockBtn.style.display = "inline-block";
+            }
+
+            // Kutunun kapı açılma animasyon sınıfı kalmışsa temizle
+            adventureBoxContainer.classList.remove("door-open-anim");
 
             adventureScreen.classList.remove("hidden");
         }
 
         // KİLİT AÇMA VE HAZİNE KAPISI ARALANMA MANTIĞI
-        async function handleUnlock() {
+        document.getElementById("unlockBtn").onclick = async () => {
             const keyInputEl = document.getElementById("keyInput");
             const unlockBtn = document.getElementById("unlockBtn");
             const userInputValue = keyInputEl ? keyInputEl.value.trim().toLowerCase() : "";
+            
+            if (currentStep > adventureSteps.length) return;
             const correctKeyword = adventureSteps[currentStep - 1].answer.toLowerCase();
 
             if (!userInputValue) {
@@ -658,7 +669,7 @@
             } else {
                 showMessage("Yanlış anahtar kelime! İpucunu tekrar dikkatlice okuyun.");
             }
-        }
+        };
 
         document.getElementById("goToRegisterBtn").onclick = () => {
             loginSection.classList.add("hidden");
