@@ -144,7 +144,6 @@
             justify-content: center;
             align-items: center;
             z-index: 20;
-            transition: transform 1s ease-in-out, opacity 1s ease-in-out;
         }
 
         .scroll-container {
@@ -257,7 +256,7 @@
                 <p>1. Oyuncu ipuçlarını tamamen kendi iradesiyle takip eder.<br>
                 2. Verilen bilgiler hukuki ve doğrulama amaçlı saklanır.<br>
                 3. Kurallara uymayanlar diskalifiye edilir.</p>
-                <p><em>(Buraya kendi metninizi yazabilirsiniz.)</em></p>
+                <p><em>(Buraya kendi sözleşme metninizi yazabilirsiniz.)</em></p>
             </div>
             <button id="approveContractBtn" class="approve-btn">Onaylıyorum ve Maceraya Başlıyorum</button>
         </div>
@@ -306,7 +305,7 @@
                 <label>Şifreyi Tekrar Girin</label>
                 <input type="password" id="regPass2" placeholder="Şifrenizi onaylayın">
             </div>
-            <button id="registerBtn">Kayıt Ol ve Onay Maili Gönder</button>
+            <button id="registerBtn">Kayıt Ol ve Devam Et</button>
             <button id="backToLoginBtn" class="secondary">Geri Dön</button>
         </div>
         
@@ -315,7 +314,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const introVideo = document.getElementById("introVideo");
@@ -364,7 +363,7 @@
             message.innerText = "";
         };
 
-        // GİRİŞ YAP -> Başarılı olursa direkt sözleşme parşömenini aç
+        // GİRİŞ YAP (Mail onay koşulu kaldırıldı, direkt sözleşme açılır)
         document.getElementById("loginBtn").onclick = async () => {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value.trim();
@@ -379,20 +378,12 @@
                 message.style.color = "#ffd700";
                 message.innerText = "Maceraya giriş yapılıyor...";
                 
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
+                await signInWithEmailAndPassword(auth, email, password);
 
-                if (!user.emailVerified) {
-                    message.style.color = "#ff4d4d";
-                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayarak hesabınızı onaylayın! (Spam klasörünü kontrol edin)";
-                    return;
-                }
-
-                // Giriş başarılı ve onaylı -> Parşömen sözleşmeyi ekrana getir
                 message.innerText = "";
                 loginSection.classList.add("hidden");
-                document.querySelector(".container").style.display = "none"; // Giriş kutusunu gizle
-                contractScreen.classList.remove("hidden"); // Sözleşmeyi rulo halinde aç
+                document.querySelector(".container").style.display = "none";
+                contractScreen.classList.remove("hidden");
 
             } catch (err) {
                 message.style.color = "#ff4d4d";
@@ -400,12 +391,10 @@
             }
         };
 
-        // SÖZLEŞMEYİ ONAYLAYINCA GEÇİŞ YAPILACAK YER
+        // SÖZLEŞMEYİ ONAYLAMA
         document.getElementById("approveContractBtn").onclick = () => {
-            // Kullanıcı sözleşmeyi onayladı, artık bir sonraki aşamaya (harita ekranına) geçebiliriz!
             contractScreen.classList.add("hidden");
-            alert("Sözleşme onaylandı! Maceranın harita ekranına hoş geldiniz.");
-            // İleride buraya harita videosunu veya ekranını getireceğiz.
+            alert("Sözleşme onaylandı! Maceraya hazır olun.");
         };
 
         // ŞİFREMİ UNUTTUM
@@ -413,7 +402,7 @@
             const email = document.getElementById("loginEmail").value.trim();
             if (!email) {
                 message.style.color = "#ff4d4d";
-                message.innerText = "Lütfen e-posta adresinizi yazın, ardından 'Şifremi Unuttum' butonuna basın.";
+                message.innerText = "Lütfen önce e-posta adresinizi yazın.";
                 return;
             }
             try {
@@ -423,7 +412,7 @@
                 message.style.color = "#00ffcc";
                 message.innerText = "Şifre sıfırlama talimatları e-posta adresinize gönderildi.";
             } catch (err) {
-                message.style.color = "#ff4d4d";
+                message.style.color: "#ff4d4d";
                 message.innerText = "Hata: " + err.message;
             }
         };
@@ -471,17 +460,15 @@
                     createdAt: new Date()
                 });
 
-                await sendEmailVerification(user);
-
                 message.style.color = "#00ffcc";
-                message.innerText = "Kayıt başarılı! Doğrulama maili gönderildi. Onayladıktan sonra giriş yapabilirsiniz.";
+                message.innerText = "Kayıt başarılı! Giriş ekranına yönlendiriliyorsunuz...";
                 
                 setTimeout(() => {
                     registerSection.classList.add("hidden");
                     loginSection.classList.remove("hidden");
                     formTitle.innerText = "Altın Peşinde - Giriş";
                     message.innerText = "";
-                }, 7000);
+                }, 2000);
 
             } catch (err) {
                 message.style.color = "#ff4d4d";
