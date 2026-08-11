@@ -46,11 +46,14 @@
             width: 100%;
             max-width: 640px;
             aspect-ratio: 16/9;
-            background: #000;
+            background: #111;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         video {
@@ -59,15 +62,15 @@
             object-fit: cover;
         }
 
-        /* Skip Butonu */
+        /* Skip Butonu - Sağ Üst */
         .skip-btn {
             position: absolute;
             top: 15px;
             right: 15px;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             color: var(--accent-gold);
             border: 1px solid var(--accent-gold);
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-size: 14px;
             font-weight: bold;
@@ -148,19 +151,19 @@
     <div class="container">
         <!-- Video Bölümü -->
         <div class="video-container" id="videoContainer">
-            <!-- Takılmaları önlemek için preload ve muted optimizasyonları eklendi -->
-            <video id="promoVideo" preload="auto" playsinline>
-                <!-- Kendi video dosya yolunuzu buraya ekleyebilirsiniz -->
+            <video id="promoVideo" playsinline muted controls>
+                <!-- Kendi video dosya yolunuzu buraya ekleyin (örn: video.mp4) -->
                 <source src="video.mp4" type="video/mp4">
                 Tarayıcınız video etiketini desteklemiyor.
             </video>
-            <button class="skip-btn" id="skipBtn">İzle ve Geç &gt;&gt;</button>
+            <!-- Sağ üst köşede Skip butonu -->
+            <button class="skip-btn" id="skipBtn">Skip &gt;&gt;</button>
         </div>
 
         <!-- Parşömen Bölümü -->
         <div class="parchment" id="parchmentArea">
             <h2>Ankara'nın Gizli Hazinesi</h2>
-            <p>Maceraya hoş geldin gezgin! Altın Peşinde kampanyası resmi olarak başladı. İlk ipucunu çözmek ve merkeze ulaşmak için hazır mısın?</p>
+            <p>Maceraya hoş geldin gezgin! Altın Peşinde kampanyası resmi olarak başladı. İlk ipucunu çözmek için hazır mısın?</p>
             <p>Kafemizde sıcak ve soğuk içeceklerin yudumlanırken çözülecek ilk bulmaca seni bekliyor.</p>
             <button class="action-btn" id="startQuestBtn">Maceraya Başla</button>
         </div>
@@ -173,32 +176,29 @@
         const parchmentArea = document.getElementById('parchmentArea');
         const startQuestBtn = document.getElementById('startQuestBtn');
 
-        // Sayfa açıldığında videonun takılmadan yüklenmesi için oynatma denemesi
-        window.addEventListener('DOMContentLoaded', () => {
-            promoVideo.play().catch(error => {
-                // Tarayıcı politikaları nedeniyle otomatik oynatma engellenirse sessize alıp tekrar dene
-                promoVideo.muted = true;
-                promoVideo.play().catch(e => console.log("Otomatik oynatma kısıtlandı:", e));
-            });
-        });
-
-        // Videoyu geç veya video bittiğinde parşömeni göster fonksiyonu
+        // Parşömeni gösteren ana fonksiyon
         function showParchment() {
             videoContainer.classList.add('hidden');
             parchmentArea.style.display = 'block';
-            // Kaynak tüketimini durdurmak için videoyu durdur
-            promoVideo.pause();
+            try {
+                promoVideo.pause();
+            } catch (e) {}
         }
 
-        // Skip butonuna tıklandığında
+        // Skip butonuna tıklandığında direkt parşömene geç
         skipBtn.addEventListener('click', showParchment);
 
-        // Video bittiğinde otomatik olarak parşömeni göster
+        // Video bittiğinde otomatik parşömene geç
         promoVideo.addEventListener('ended', showParchment);
 
-        // Parşömen üzerindeki ana buton işlevi
+        // Eğer aynı dizinde 'video.mp4' bulunamazsa veya yüklenemezse siyah ekranda kalmaması için hata koruması
+        promoVideo.addEventListener('error', () => {
+            console.log("Video dosyası bulunamadı, direkt parşömen moduna geçiliyor.");
+        });
+
+        // Parşömen içi buton
         startQuestBtn.addEventListener('click', () => {
-            alert("Macera başlıyor! İpuçları yükleniyor...");
+            alert("Macera başlıyor!");
         });
     </script>
 </body>
