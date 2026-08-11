@@ -39,26 +39,30 @@
             object-fit: cover;
         }
 
-        /* VİDEOYU GEÇ BUTONU */
+        /* VİDEOYU GEÇ BUTONU (SAĞ ALT KÖŞE - ŞIK VE KÜÇÜK) */
         .skip-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.6);
+            bottom: 30px;
+            right: 30px;
+            background: rgba(30, 15, 50, 0.75);
             color: #ffd700;
             border: 1px solid #7928ca;
-            padding: 8px 18px;
-            border-radius: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 13px;
+            font-weight: 600;
             z-index: 11;
-            transition: background 0.2s, transform 0.2s;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(120, 50, 200, 0.4);
+            transition: all 0.2s ease;
         }
 
         .skip-btn:hover {
-            background: rgba(121, 40, 202, 0.4);
-            transform: scale(1.05);
+            background: rgba(121, 40, 202, 0.85);
+            border-color: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
         }
 
         .fade-out {
@@ -289,7 +293,7 @@
             <source src="anasayfafonem.mp4" type="video/mp4">
             Tarayıcınız video etiketini desteklemiyor.
         </video>
-        <button class="skip-btn" id="skipVideoBtn">Geç</button>
+        <button class="skip-btn" id="skipVideoBtn">İntroyu Geç</button>
     </div>
 
     <div id="contract-screen" class="hidden">
