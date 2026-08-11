@@ -508,8 +508,6 @@
             }
 
             try {
-                // Giriş kontrolü yapılırken kullanıcıyı bekletmek için modal açıyoruz
-                // İşlem bitince veritabanı durumuna göre parşömen ya da yönlendirme yapılacak
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
@@ -532,11 +530,11 @@
                 document.querySelector(".container").style.display = "none";
 
                 if (!contractApproved) {
-                    // İlk kez giriyorsa ve sözleşmeyi onaylamadıysa parşömen gösterilir
+                    // İlk kez giriyorsa parşömeni göster (Araya başka modal girmesin diye modal kapalı tutuluyor)
                     modalOverlay.classList.add("hidden");
                     contractScreen.classList.remove("hidden");
                 } else {
-                    // Daha önce onayladıysa direkt bilgilendirme mesajı gösterilir ve parşömen GELMEZ
+                    // Daha önce onayladıysa direkt karşılama mesajı göster
                     showMessage("Tekrar hoş geldiniz Maceracı! Maceraya devam ediyorsunuz.");
                 }
 
@@ -624,7 +622,6 @@
 
                 await sendEmailVerification(user);
 
-                // Kayıt başarılı olduğunda modal gösterilir, "Tamam"a basıldığında giriş ekranına dönülür
                 showMessage(
                     "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.", 
                     () => {
