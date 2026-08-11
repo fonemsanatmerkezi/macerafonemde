@@ -3,255 +3,511 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Altın Peşinde - Fonem Sanat Merkezi</title>
+    <title>Altın Peşinde - Macera Fonemde</title>
     <style>
-        :root {
-            --primary-purple: #4b2e83;
-            --accent-gold: #d4af37;
-            --dark-bg: #1a1a2e;
-            --parchment-bg: #f4ecd8;
-            --parchment-border: #8b5a2b;
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #0f051d; 
+            color: #fff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            overflow: hidden;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--dark-bg);
-            color: #fff;
-            min-height: 100vh;
+        /* VİDEO AÇILIŞ EKRANI (INTRO) */
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f051d;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden;
+            z-index: 10;
+            transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
         }
 
-        .container {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 1. Aşama: Video Alanı */
-        .video-container {
-            position: relative;
-            width: 100%;
-            max-width: 640px;
-            aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        video {
+        #intro-screen video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .skip-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(0, 0, 0, 0.7);
-            color: var(--accent-gold);
-            border: 1px solid var(--accent-gold);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 10;
-            backdrop-filter: blur(4px);
+        .fade-out {
+            opacity: 0;
+            visibility: hidden;
         }
 
-        .skip-btn:hover {
-            background: var(--accent-gold);
-            color: #000;
-        }
-
-        /* 2. Aşama: Giriş Ekranı */
-        .login-screen {
-            display: none;
+        /* ANA GİRİŞ / KAYIT FORMU KUTUSU */
+        .container { 
+            background: rgba(30, 15, 50, 0.9); 
+            padding: 30px; 
+            border-radius: 16px; 
             width: 100%;
-            max-width: 400px;
-            background: #252542;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-            border: 1px solid var(--accent-gold);
+            max-width: 380px;
+            text-align: center; 
+            border: 1px solid #7928ca; 
+            box-shadow: 0 8px 32px rgba(120, 50, 200, 0.3);
+            box-sizing: border-box; 
+            margin: 20px;
+            z-index: 1;
         }
 
-        .login-screen h2 {
-            color: var(--accent-gold);
+        .form-logo {
+            width: 180px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: #bfa1e6;
+        }
+        input { 
+            width: 100%; 
+            padding: 10px; 
+            border-radius: 8px; 
+            border: 1px solid #4a2875; 
+            background: #19092d; 
+            color: white; 
+            box-sizing: border-box; 
+            outline: none; 
+        }
+        input:focus { 
+            border-color: #ffd700; 
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 10px; 
+            border: none; 
+            border-radius: 8px; 
+            background: linear-gradient(135deg, #7928ca, #b100ff); 
+            color: white; 
+            font-weight: bold; 
+            font-size: 15px;
+            cursor: pointer; 
+            transition: opacity 0.2s;
+        }
+        button:hover { 
+            opacity: 0.9; 
+        }
+        .secondary { 
+            background: transparent; 
+            border: 1px solid #7928ca; 
+        }
+        .secondary:hover { 
+            background: rgba(121, 40, 202, 0.1); 
+        }
+        
+        /* GOOGLE İLE GİRİŞ BUTONU ÖZEL STİLİ */
+        .google-btn {
+            background-color: #ffffff !important;
+            color: #333333 !important;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        .google-btn:hover {
+            background-color: #f1f1f1 !important;
+            opacity: 1;
+        }
+        .google-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .divider {
+            margin: 12px 0;
+            font-size: 12px;
+            color: #8c73b0;
+        }
+
+        .text-btn {
+            background: none;
+            border: none;
+            color: #ffd700;
+            font-size: 13px;
+            margin-top: 8px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            width: auto;
+        }
+        .text-btn:hover {
+            color: #ffaa00;
+            opacity: 1;
+        }
+
+        /* TARİHİ PARŞÖMEN / RULO SÖZLEŞME EKRANI */
+        #contract-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 3, 20, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .scroll-container {
+            background: linear-gradient(135deg, #f4e8c1 0%, #e3ce9c 100%);
+            color: #3b2314;
+            width: 90%;
+            max-width: 500px;
+            padding: 40px 30px;
+            border-radius: 8px;
+            border: 4px solid #8b5a2b;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(139, 90, 43, 0.3);
+            text-align: center;
+            position: relative;
+            animation: unfoldScroll 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-sizing: border-box;
+        }
+
+        @keyframes unfoldScroll {
+            0% { transform: scaleY(0.05) scaleX(0.2); opacity: 0; }
+            50% { transform: scaleY(1.05) scaleX(1); opacity: 1; }
+            100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+        }
+
+        .scroll-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #4a2e1b;
+            border-bottom: 2px solid #b8860b;
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .scroll-text-box {
+            max-height: 220px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #2c1810;
+            background: rgba(255, 253, 240, 0.6);
+            padding: 15px;
+            border: 1px solid #d4af37;
+            border-radius: 4px;
             margin-bottom: 20px;
         }
 
-        .login-input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            background: #1a1a2e;
-            border: 1px solid #4b2e83;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 16px;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--accent-gold);
-            color: #000;
-            border: none;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .login-btn:hover {
-            background-color: #e5c158;
-        }
-
-        /* 3. Aşama: Parşömen Alanı */
-        .parchment {
-            display: none;
-            position: relative;
-            width: 100%;
-            max-width: 640px;
-            background-color: var(--parchment-bg);
-            color: #3b2f2f;
-            border: 3px solid var(--parchment-border);
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            text-align: center;
-            animation: fadeIn 0.8s ease forwards;
-        }
-
-        .muhur-img {
-            width: 70px;
-            height: 70px;
-            object-fit: contain;
+        .wax-seal {
+            width: 60px;
+            height: 60px;
+            background: #a81c1c;
+            border-radius: 50%;
             margin: 0 auto 15px auto;
-            display: block;
-        }
-
-        .parchment h2 {
-            color: var(--primary-purple);
-            margin-bottom: 15px;
-            font-family: 'Georgia', serif;
-        }
-
-        .parchment p {
-            line-height: 1.6;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        .action-btn {
-            display: block;
-            width: 100%;
-            max-width: 250px;
-            margin: 20px auto 0 auto;
-            background-color: var(--primary-purple);
-            color: var(--accent-gold);
-            border: 2px solid var(--accent-gold);
-            padding: 12px;
-            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffd700;
             font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 2px dashed #ff6b6b;
+        }
+
+        .approve-btn {
+            background: linear-gradient(135deg, #b8860b, #daa520);
+            color: #2b1700;
+            font-weight: bold;
+            border: 2px solid #8b6508;
+            padding: 14px;
             border-radius: 8px;
             cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4);
+            transition: all 0.2s;
         }
 
+        .approve-btn:hover {
+            background: linear-gradient(135deg, #daa520, #ffd700);
+            transform: translateY(-2px);
+        }
+
+        #message { 
+            margin-top: 15px; 
+            font-size: 13px; 
+            word-break: break-all;
+        }
         .hidden {
             display: none !important;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- 1. VİDEO BÖLÜMÜ -->
-        <div class="video-container" id="videoContainer">
-            <video id="promoVideo" autoplay muted playsinline>
-                <source src="anasayfafonem.mp4" type="video/mp4">
-                Tarayıcınız video etiketini desteklemiyor.
-            </video>
-            <button class="skip-btn" id="skipBtn">Skip &gt;&gt;</button>
-        </div>
+    <div id="intro-screen">
+        <video id="introVideo" autoplay muted playsinline>
+            <source src="anasayfafonem.mp4" type="video/mp4">
+            Tarayıcınız video etiketini desteklemiyor.
+        </video>
+    </div>
 
-        <!-- 2. GİRİŞ EKRANI -->
-        <div class="login-screen" id="loginScreen">
-            <h2>Maceraya Giriş</h2>
-            <input type="text" id="usernameInput" class="login-input" placeholder="Adınızı Girin">
-            <button class="login-btn" id="loginBtn">Devam Et</button>
-        </div>
-
-        <!-- 3. PARŞÖMEN BÖLÜMÜ -->
-        <div class="parchment" id="parchmentArea">
-            <img src="muhur.png" alt="Mühür" class="muhur-img">
-            <h2>Ankara'nın Gizli Hazinesi</h2>
-            <p>Maceraya hoş geldin <span id="displayName" style="font-weight: bold; color: var(--primary-purple);"></span>! Altın Peşinde kampanyası resmi olarak başladı.</p>
-            <p>Kafemizde sıcak ve soğuk içeceklerin yudumlanırken çözülecek ilk bulmaca seni bekliyor.</p>
-            <button class="action-btn" id="startQuestBtn">Maceraya Başla</button>
+    <div id="contract-screen" class="hidden">
+        <div class="scroll-container">
+            <div class="wax-seal">⚜</div>
+            <div class="scroll-title">Altın Peşinde - Gizli Sözleşme</div>
+            <div class="scroll-text-box">
+                <p><strong>Değerli Maceracı,</strong></p>
+                <p>Bu parşömen, "Altın Peşinde" adı altında düzenlenen 1 gram altın ödüllü büyük macera oyununun gizlilik, katılım ve güvenlik kurallarını içerir.</p>
+                <p>1. Oyuncu ipuçlarını tamamen kendi iradesiyle takip eder.<br>
+                2. Verilen bilgiler hukuki ve doğrulama amaçlı saklanır.<br>
+                3. Kurallara uymayanlar diskalifiye edilir.</p>
+                <p><em>(Buraya kendi sözleşme metninizi yazabilirsiniz.)</em></p>
+            </div>
+            <button id="approveContractBtn" class="approve-btn">Onaylıyorum ve Maceraya Başlıyorum</button>
         </div>
     </div>
 
-    <script>
-        const videoContainer = document.getElementById('videoContainer');
-        const promoVideo = document.getElementById('promoVideo');
-        const skipBtn = document.getElementById('skipBtn');
-        const loginScreen = document.getElementById('loginScreen');
-        const loginBtn = document.getElementById('loginBtn');
-        const usernameInput = document.getElementById('usernameInput');
-        const parchmentArea = document.getElementById('parchmentArea');
-        const displayName = document.getElementById('displayName');
-        const startQuestBtn = document.getElementById('startQuestBtn');
+    <div class="container">
+        <img src="logo.png" alt="Fonem Logo" class="form-logo" onerror="this.style.display='none'">
+        <h2 id="formTitle">Altın Peşinde - Giriş</h2>
+        
+        <div id="loginSection">
+            <div class="input-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="loginEmail" placeholder="ornek@mail.com">
+            </div>
+            <div class="input-group">
+                <label>Şifre</label>
+                <input type="password" id="loginPassword" placeholder="******">
+            </div>
+            <button id="loginBtn">Giriş Yap</button>
+            
+            <button id="googleLoginBtn" class="google-btn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                Google ile Giriş Yap
+            </button>
 
-        // Videodan giriş ekranına geçiş fonksiyonu
-        function showLogin() {
-            videoContainer.classList.add('hidden');
-            loginScreen.style.display = 'block';
-            try { promoVideo.pause(); } catch(e) {}
-        }
+            <div class="divider">veya</div>
+            <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
+            <button id="forgotPasswordBtn" class="text-btn">Şifremi Unuttum?</button>
+        </div>
 
-        // Skip butonuna tıklandığında veya video bittiğinde giriş ekranına at
-        skipBtn.addEventListener('click', showLogin);
-        promoVideo.addEventListener('ended', showLogin);
+        <div id="registerSection" class="hidden">
+            <div class="input-group">
+                <label>Ad Soyad</label>
+                <input type="text" id="regName" placeholder="Adınız Soyadınız">
+            </div>
+            <div class="input-group">
+                <label>Doğum Tarihi</label>
+                <input type="date" id="regBirthdate">
+            </div>
+            <div class="input-group">
+                <label>Telefon Numarası</label>
+                <input type="tel" id="regPhone" placeholder="0555...">
+            </div>
+            <div class="input-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="regEmail" placeholder="ornek@mail.com">
+            </div>
+            <div class="input-group">
+                <label>Şifre (Min 8 karakter, harf, rakam ve noktalama)</label>
+                <input type="password" id="regPass1" placeholder="En az 8 karakter">
+            </div>
+            <div class="input-group">
+                <label>Şifreyi Tekrar Girin</label>
+                <input type="password" id="regPass2" placeholder="Şifrenizi onaylayın">
+            </div>
+            <button id="registerBtn">Kayıt Ol ve Onay Maili Gönder</button>
+            <button id="backToLoginBtn" class="secondary">Geri Dön</button>
+        </div>
+        
+        <p id="message"></p>
+    </div>
 
-        // Giriş yap butonuna tıklandığında parşömeni göster
-        loginBtn.addEventListener('click', () => {
-            const name = usernameInput.value.trim();
-            if (name === "") {
-                alert("Lütfen adınızı girin!");
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const introVideo = document.getElementById("introVideo");
+        introVideo.onended = () => {
+            document.getElementById("intro-screen").classList.add("fade-out");
+        };
+
+        setTimeout(() => {
+            const intro = document.getElementById("intro-screen");
+            if (!intro.classList.contains("fade-out")) {
+                intro.classList.add("fade-out");
+            }
+        }, 9000);
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
+            authDomain: "macerafonemde.firebaseapp.com",
+            projectId: "macerafonemde",
+            storageBucket: "macerafonemde.firebasestorage.app",
+            messagingSenderId: "59091076960",
+            appId: "1:59091076960:web:459d45f325fd7d1d788005",
+            measurementId: "G-1SED6PGTC7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const loginSection = document.getElementById("loginSection");
+        const registerSection = document.getElementById("registerSection");
+        const contractScreen = document.getElementById("contract-screen");
+        const formTitle = document.getElementById("formTitle");
+        const message = document.getElementById("message");
+
+        document.getElementById("goToRegisterBtn").onclick = () => {
+            loginSection.classList.add("hidden");
+            registerSection.classList.remove("hidden");
+            formTitle.innerText = "Altın Peşinde - Kayıt Ol";
+            message.innerText = "";
+        };
+
+        document.getElementById("backToLoginBtn").onclick = () => {
+            registerSection.classList.add("hidden");
+            loginSection.classList.remove("hidden");
+            formTitle.innerText = "Altın Peşinde - Giriş";
+            message.innerText = "";
+        };
+
+        // GİRİŞ YAP (Mail Onaylı)
+        document.getElementById("loginBtn").onclick = async () => {
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
+
+            if (!email || !password) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen e-posta ve şifrenizi giriniz.";
                 return;
             }
-            displayName.textContent = name;
-            loginScreen.style.display = 'none';
-            parchmentArea.style.display = 'block';
-        });
 
-        startQuestBtn.addEventListener('click', () => {
-            alert("Macera başlıyor!");
-        });
-    </script>
-</body>
-</html>
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Maceraya giriş yapılıyor...";
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                if (!user.emailVerified) {
+                    message.style.color = "#ff4d4d";
+                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayın! (Spam klasörünü kontrol edin)";
+                    return;
+                }
+
+                message.innerText = "";
+                loginSection.classList.add("hidden");
+                document.querySelector(".container").style.display = "none";
+                contractScreen.classList.remove("hidden");
+
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
+        };
+
+        // GOOGLE İLE GİRİŞ YAP İŞLEMİ
+        document.getElementById("googleLoginBtn").onclick = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Google ile bağlanılıyor...";
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (!userDoc.exists()) {
+                    await setDoc(doc(db, "users", user.uid), {
+                        fullName: user.displayName || "Google Kullanıcısı",
+                        email: user.email,
+                        phone: "Belirtilmemiş",
+                        birthDate: "Belirtilmemiş",
+                        createdAt: new Date()
+                    });
+                }
+
+                message.innerText = "";
+                loginSection.classList.add("hidden");
+                document.querySelector(".container").style.display = "none";
+                contractScreen.classList.remove("hidden");
+
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Google Giriş Hatası: " + err.message;
+            }
+        };
+
+        // SÖZLEŞMEYİ ONAYLAMA
+        document.getElementById("approveContractBtn").onclick = () => {
+            contractScreen.classList.add("hidden");
+            alert("Sözleşme onaylandı! Maceraya hazır olun.");
+        };
+
+        // ŞİFREMİ UNUTTUM
+        document.getElementById("forgotPasswordBtn").onclick = async () => {
+            const email = document.getElementById("loginEmail").value.trim();
+            if (!email) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen e-posta adresinizi yazın.";
+                return;
+            }
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Şifre sıfırlama bağlantısı gönderiliyor...";
+                await sendPasswordResetEmail(auth, email);
+                message.style.color = "#00ffcc";
+                message.innerText = "Şifre sıfırlama talimatları e-posta adresinize gönderildi.";
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
+        };
+
+        // KAYIT OL
+        document.getElementById("registerBtn").onclick = async () => {
+            const name = document.getElementById("regName").value.trim();
+            const birthdate = document.getElementById("regBirthdate").value;
+            const phone = document.getElementById("regPhone").value.trim();
+            const email = document.getElementById("regEmail").value.trim();
+            const p1 = document.getElementById("regPass1").value;
+            const p2 = document.getElementById("regPass2").value;
+
+            if (!name || !birthdate || !phone || !email || !p1 || !p2) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen tüm alanları eksiksiz doldurunuz.";
+                return;
+            }
+
+            if (p1 !== p2) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Şifreler uyuşmuyor!";
+                return;
+            }
+
+            const passwordRegex = /^(?=
