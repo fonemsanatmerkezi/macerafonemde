@@ -30,7 +30,8 @@
             justify-content: center;
             align-items: center;
             z-index: 10;
-            transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+            cursor: pointer;
         }
 
         #intro-screen video {
@@ -118,7 +119,7 @@
             background: rgba(121, 40, 202, 0.1); 
         }
         
-        /* GOOGLE İLE GİRİŞ BUTONU ÖZEL STİLİ */
+        /* GOOGLE İLE GİRİŞ BUTONU */
         .google-btn {
             background-color: #ffffff !important;
             color: #333333 !important;
@@ -306,4 +307,265 @@
             <button id="loginBtn">Giriş Yap</button>
             
             <button id="googleLoginBtn" class="google-btn">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                Google ile Giriş Yap
+            </button>
+
+            <div class="divider">veya</div>
+            <button id="goToRegisterBtn" class="secondary">Kayıt Ol</button>
+            <button id="forgotPasswordBtn" class="text-btn">Şifremi Unuttum?</button>
+        </div>
+
+        <div id="registerSection" class="hidden">
+            <div class="input-group">
+                <label>Ad Soyad</label>
+                <input type="text" id="regName" placeholder="Adınız Soyadınız">
+            </div>
+            <div class="input-group">
+                <label>Doğum Tarihi</label>
+                <input type="date" id="regBirthdate">
+            </div>
+            <div class="input-group">
+                <label>Telefon Numarası</label>
+                <input type="tel" id="regPhone" placeholder="0555...">
+            </div>
+            <div class="input-group">
+                <label>E-posta Adresi</label>
+                <input type="email" id="regEmail" placeholder="ornek@mail.com">
+            </div>
+            <div class="input-group">
+                <label>Şifre (Min 8 karakter, harf, rakam ve noktalama)</label>
+                <input type="password" id="regPass1" placeholder="En az 8 karakter">
+            </div>
+            <div class="input-group">
+                <label>Şifreyi Tekrar Girin</label>
+                <input type="password" id="regPass2" placeholder="Şifrenizi onaylayın">
+            </div>
+            <button id="registerBtn">Kayıt Ol ve Onay Maili Gönder</button>
+            <button id="backToLoginBtn" class="secondary">Geri Dön</button>
+        </div>
+        
+        <p id="message"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // VİDEO GEÇİŞ KONTROLÜ (Garantili Çözüm)
+        const introVideo = document.getElementById("introVideo");
+        const introScreen = document.getElementById("intro-screen");
+        let introClosed = false;
+
+        function closeIntro() {
+            if (!introClosed && introScreen) {
+                introClosed = true;
+                introScreen.classList.add("fade-out");
+                try { introVideo.pause(); } catch(e) {}
+            }
+        }
+
+        // 1. Ekranın herhangi bir yerine tıklama veya dokunma garantisi
+        document.addEventListener("click", closeIntro);
+        document.addEventListener("touchstart", closeIntro);
+        document.addEventListener("keydown", closeIntro);
+
+        // 2. Video bittiğinde otomatik kapat
+        introVideo.onended = closeIntro;
+
+        // 3. Tarayıcı video hatası verirse veya takılırsa otomatik kapat
+        introVideo.onerror = closeIntro;
+
+        // 4. Her ihtimale karşı en geç 3.5 saniye sonra zorunlu kapat (Asla takılı kalmaz)
+        setTimeout(closeIntro, 3500);
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDnqeiho2_OsIEtFjt5f3xwQJO_7Zvo71Y",
+            authDomain: "macerafonemde.firebaseapp.com",
+            projectId: "macerafonemde",
+            storageBucket: "macerafonemde.firebasestorage.app",
+            messagingSenderId: "59091076960",
+            appId: "1:59091076960:web:459d45f325fd7d1d788005",
+            measurementId: "G-1SED6PGTC7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const loginSection = document.getElementById("loginSection");
+        const registerSection = document.getElementById("registerSection");
+        const contractScreen = document.getElementById("contract-screen");
+        const formTitle = document.getElementById("formTitle");
+        const message = document.getElementById("message");
+
+        document.getElementById("goToRegisterBtn").onclick = () => {
+            loginSection.classList.add("hidden");
+            registerSection.classList.remove("hidden");
+            formTitle.innerText = "Altın Peşinde - Kayıt Ol";
+            message.innerText = "";
+        };
+
+        document.getElementById("backToLoginBtn").onclick = () => {
+            registerSection.classList.add("hidden");
+            loginSection.classList.remove("hidden");
+            formTitle.innerText = "Altın Peşinde - Giriş";
+            message.innerText = "";
+        };
+
+        // GİRİŞ YAP (Mail Onaylı)
+        document.getElementById("loginBtn").onclick = async () => {
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
+
+            if (!email || !password) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen e-posta ve şifrenizi giriniz.";
+                return;
+            }
+
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Maceraya giriş yapılıyor...";
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                if (!user.emailVerified) {
+                    message.style.color = "#ff4d4d";
+                    message.innerText = "Lütfen önce e-postanıza gelen doğrulama linkine tıklayın! (Spam klasörünü kontrol edin)";
+                    return;
+                }
+
+                message.innerText = "";
+                loginSection.classList.add("hidden");
+                document.querySelector(".container").style.display = "none";
+                contractScreen.classList.remove("hidden");
+
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
+        };
+
+        // GOOGLE İLE GİRİŞ YAP
+        document.getElementById("googleLoginBtn").onclick = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Google ile bağlanılıyor...";
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (!userDoc.exists()) {
+                    await setDoc(doc(db, "users", user.uid), {
+                        fullName: user.displayName || "Google Kullanıcısı",
+                        email: user.email,
+                        phone: "Belirtilmemiş",
+                        birthDate: "Belirtilmemiş",
+                        createdAt: new Date()
+                    });
+                }
+
+                message.innerText = "";
+                loginSection.classList.add("hidden");
+                document.querySelector(".container").style.display = "none";
+                contractScreen.classList.remove("hidden");
+
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Google Giriş Hatası: " + err.message;
+            }
+        };
+
+        // SÖZLEŞMEYİ ONAYLAMA
+        document.getElementById("approveContractBtn").onclick = () => {
+            contractScreen.classList.add("hidden");
+            alert("Sözleşme onaylandı! Maceraya hazır olun.");
+        };
+
+        // ŞİFREMİ UNUTTUM
+        document.getElementById("forgotPasswordBtn").onclick = async () => {
+            const email = document.getElementById("loginEmail").value.trim();
+            if (!email) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen e-posta adresinizi yazın.";
+                return;
+            }
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Şifre sıfırlama bağlantısı gönderiliyor...";
+                await sendPasswordResetEmail(auth, email);
+                message.style.color = "#00ffcc";
+                message.innerText = "Şifre sıfırlama talimatları e-posta adresinize gönderildi.";
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
+        };
+
+        // KAYIT OL
+        document.getElementById("registerBtn").onclick = async () => {
+            const name = document.getElementById("regName").value.trim();
+            const birthdate = document.getElementById("regBirthdate").value;
+            const phone = document.getElementById("regPhone").value.trim();
+            const email = document.getElementById("regEmail").value.trim();
+            const p1 = document.getElementById("regPass1").value;
+            const p2 = document.getElementById("regPass2").value;
+
+            if (!name || !birthdate || !phone || !email || !p1 || !p2) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Lütfen tüm alanları eksiksiz doldurunuz.";
+                return;
+            }
+
+            if (p1 !== p2) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Şifreler uyuşmuyor!";
+                return;
+            }
+
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&._\-]{8,}$/;
+            if (!passwordRegex.test(p1)) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Şifre en az 8 karakter olmalı, en az bir harf ve bir rakam içermelidir.";
+                return;
+            }
+
+            try {
+                message.style.color = "#ffd700";
+                message.innerText = "Maceraya kayıt oluşturuluyor ve onay maili gönderiliyor...";
+                
+                const userCredential = await createUserWithEmailAndPassword(auth, email, p1);
+                const user = userCredential.user;
+
+                await setDoc(doc(db, "users", user.uid), {
+                    fullName: name,
+                    birthDate: birthdate,
+                    phone: phone,
+                    email: email,
+                    createdAt: new Date()
+                });
+
+                await sendEmailVerification(user);
+
+                message.style.color = "#00ffcc";
+                message.innerText = "Kayıt başarılı! E-postanıza doğrulama linki gönderildi (Spam klasörünü kontrol edin). Onayladıktan sonra giriş yapabilirsiniz.";
+                
+                setTimeout(() => {
+                    registerSection.classList.add("hidden");
+                    loginSection.classList.remove("hidden");
+                    formTitle.innerText = "Altın Peşinde - Giriş";
+                    message.innerText = "";
+                }, 7000);
+
+            } catch (err) {
+                message.style.color = "#ff4d4d";
+                message.innerText = "Hata: " + err.message;
+            }
+        };
+    </script>
+</body>
+</html>
