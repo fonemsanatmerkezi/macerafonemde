@@ -456,14 +456,14 @@
 
     <!-- 10. ADIM BÜYÜK HAZİNE SANDIĞI VİDEO EKRANI -->
     <div id="treasure-screen" class="hidden">
-        <video id="treasureVideo" autoplay playsinline>
+        <video id="treasureVideo" playsinline>
             <source src="hazinesandigi.mp4" type="video/mp4">
             Tarayıcınız video etiketini desteklemiyor.
         </video>
-        <div class="treasure-content">
+        <div id="treasureContentBox" class="treasure-content">
             <h1>TEBRİKLER!</h1>
             <p>Macerayı başarıyla tamamladın! Büyük hazine sandığı açıldı ve 1 gram altın ödülünü kazandın!</p>
-            <button id="closeTreasureBtn" class="modal-btn" style="margin-top: 20px;">Harika!</button>
+            <button id="startTreasureVideoBtn" class="modal-btn" style="margin-top: 20px;">Sandığı Aç</button>
         </div>
     </div>
 
@@ -580,7 +580,8 @@
         const modalCloseBtn = document.getElementById("modalCloseBtn");
         const treasureScreen = document.getElementById("treasure-screen");
         const treasureVideo = document.getElementById("treasureVideo");
-        const closeTreasureBtn = document.getElementById("closeTreasureBtn");
+        const startTreasureVideoBtn = document.getElementById("startTreasureVideoBtn");
+        const treasureContentBox = document.getElementById("treasureContentBox");
 
         let onModalCloseCallback = null;
 
@@ -699,14 +700,8 @@
                         adventureScreen.classList.add("hidden");
                         
                         if (isLastStep) {
-                            // 10. aşama bittiğinde doğrudan sandık açılma videosunu başlat
+                            // 10. aşama bittiğinde tebrikler ve sandığı aç butonu ekranını getir
                             treasureScreen.classList.remove("hidden");
-                            try {
-                                treasureVideo.currentTime = 0;
-                                treasureVideo.play();
-                            } catch (err) {
-                                console.error("Video oynatılamadı:", err);
-                            }
                         } else {
                             showMessage(
                                 "Tebrikler Maceracı! Hazinenin kapısı aralanıyor...\n\nSonraki ipucu için hazır mısınız?", 
@@ -723,14 +718,21 @@
             };
         }
 
-        // Sandık videosu bittiğinde veya kullanıcı butona bastığında kapatma aksiyonu
-        function finishGame() {
-            try { treasureVideo.pause(); } catch(e) {}
-            treasureScreen.classList.add("hidden");
-        }
+        // "Sandığı Aç" butonuna basınca video oynasacak ve kutu kaybolacak
+        startTreasureVideoBtn.onclick = () => {
+            treasureContentBox.classList.add("hidden");
+            try {
+                treasureVideo.currentTime = 0;
+                treasureVideo.play();
+            } catch (err) {
+                console.error("Video oynatılamadı:", err);
+            }
+        };
 
-        closeTreasureBtn.onclick = finishGame;
-        treasureVideo.onended = finishGame;
+        // Video bitince sayfa öylece kalır, hiçbir buton veya geri dönüş tetiklenmez
+        treasureVideo.onended = () => {
+            // Video bittiğinde son karede kalır, ekstra işlem yapılmaz.
+        };
 
         async function openAdventureStep() {
             contractScreen.classList.add("hidden");
@@ -750,10 +752,7 @@
             if (currentStep > adventureSteps.length) {
                 adventureScreen.classList.add("hidden");
                 treasureScreen.classList.remove("hidden");
-                try {
-                    treasureVideo.currentTime = 0;
-                    treasureVideo.play();
-                } catch(e) {}
+                treasureContentBox.classList.remove("hidden");
                 return;
             }
 
