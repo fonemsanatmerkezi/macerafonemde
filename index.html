@@ -562,7 +562,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // İpuçları metinleri (Cevaplar artık kaynak kodda yok, tamamen gizli Firestore tablosundan kontrol ediliyor)
         const adventureClues = [
             "Müziğin ve sesin kalbinde, stüdyonun ilk sırrı saklı. Girişteki ilk ritmi bul.",
             "İkinci anahtar ışıkların altındadır. Sahnenin renklerini hatırla.",
@@ -675,7 +674,12 @@
                     return;
                 }
 
-                // GÜVENLİK KONTROLÜ: Cevap gizli sunucu veritabanından doğrulanır
+                if (!auth.currentUser) {
+                    showMessage("Oturum süresi doğrulanamadı. Lütfen tekrar giriş yapın.");
+                    return;
+                }
+
+                // GÜVENLİK KONTROLÜ: Oturum açmış kullanıcının yetkisiyle gizli veritabanından doğrulanır
                 try {
                     const answersDocRef = doc(db, "gameAnswers", "steps");
                     const answersDoc = await getDoc(answersDocRef);
@@ -744,9 +748,7 @@
             }
         };
 
-        treasureVideo.onended = () => {
-            // Video bittiğinde sayfa öylece kalır
-        };
+        treasureVideo.onended = () => {};
 
         async function openAdventureStep() {
             contractScreen.classList.add("hidden");
