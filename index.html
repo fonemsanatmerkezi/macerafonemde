@@ -562,17 +562,18 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        const adventureSteps = [
-            { clue: "Müziğin ve sesin kalbinde, stüdyonun ilk sırrı saklı. Girişteki ilk ritmi bul.", answer: "ritim" },
-            { clue: "İkinci anahtar ışıkların altındadır. Sahnenin renklerini hatırla.", answer: "sahne" },
-            { clue: "Üçüncü ipucu: Kahvelerin kokusunun yayıldığı köşe...", answer: "kahve" },
-            { clue: "Dördüncü ipucu: Kayıt odasındaki mikrofonun gizli frekansı.", answer: "frekans" },
-            { clue: "Beşinci ipucu: Fonem'in duvarlarındaki nostaljik melodi.", answer: "melodi" },
-            { clue: "Altıncı ipucu: Provaların yapıldığı odanın gizli numarası.", answer: "oda" },
-            { clue: "Yedinci ipucu: Altının izini sürenlerin geçtiği son kapı.", answer: "altin" },
-            { clue: "Sekizinci ipucu: Gece yarısı yankılanan akorlar.", answer: "akor" },
-            { clue: "Dokuzuncu ipucu: Büyük hazineye çok az kaldı, mühür nerede?", answer: "muhur" },
-            { clue: "Onuncu ipucu: Son anahtar, macerayı başlatan o büyük kelime.", answer: "fonem" }
+        // İpuçları metinleri (Burada sadece kullanıcıya gösterilecek yazılar var, cevaplar ASLA yok!)
+        const adventureClues = [
+            "Müziğin ve sesin kalbinde, stüdyonun ilk sırrı saklı. Girişteki ilk ritmi bul.",
+            "İkinci anahtar ışıkların altındadır. Sahnenin renklerini hatırla.",
+            "Üçüncü ipucu: Kahvelerin kokusunun yayıldığı köşe...",
+            "Dördüncü ipucu: Kayıt odasındaki mikrofonun gizli frekansı.",
+            "Beşinci ipucu: Fonem'in duvarlarındaki nostaljik melodi.",
+            "Altıncı ipucu: Provaların yapıldığı odanın gizli numarası.",
+            "Yedinci ipucu: Altının izini sürenlerin geçtiği son kapı.",
+            "Sekizinci ipucu: Gece yarısı yankılanan akorlar.",
+            "Dokuzuncu ipucu: Büyük hazineye çok az kaldı, mühür nerede?",
+            "Onuncu ipucu: Son anahtar, macerayı başlatan o büyük kelime."
         ];
 
         const modalOverlay = document.getElementById("modal-overlay");
@@ -667,58 +668,72 @@
                 const unlockBtn = document.getElementById("unlockBtn");
                 const userInputValue = keyInputEl ? keyInputEl.value.trim().toLowerCase() : "";
                 
-                if (currentStep > adventureSteps.length) return;
-                const correctKeyword = adventureSteps[currentStep - 1].answer.toLowerCase();
+                if (currentStep > 10) return;
 
                 if (!userInputValue) {
                     showMessage("Lütfen anahtar kelimeyi giriniz.");
                     return;
                 }
 
-                if (userInputValue === correctKeyword) {
-                    if (unlockBtn) unlockBtn.classList.add("unlock-animation");
+                // GÜVENLİK KONTROLÜ: Cevap tarayıcıda aranmaz, doğrudan veritabanındaki gizli tablodan doğrulanır.
+                try {
+                    const answersDocRef = doc(db, "gameAnswers", "steps");
+                    const answersDoc = await getDoc(answersDocRef);
 
-                    setTimeout(() => {
-                        adventureBoxContainer.classList.add("door-open-anim");
-                    }, 300);
-
-                    const isLastStep = (currentStep === adventureSteps.length);
-                    currentStep++;
-
-                    const targetStepToSave = currentStep > adventureSteps.length ? adventureSteps.length + 1 : currentStep;
-
-                    try {
-                        const userDocRef = doc(db, "users", activeUserId);
-                        await updateDoc(userDocRef, { currentKeyStep: targetStepToSave });
-                    } catch (e) {
-                        const userDocRef = doc(db, "users", activeUserId);
-                        await setDoc(userDocRef, { currentKeyStep: targetStepToSave }, { merge: true });
+                    if (!answersDoc.exists()) {
+                        showMessage("Sistem hatası: Cevap tablosu bulunamadı.");
+                        return;
                     }
 
-                    setTimeout(() => {
-                        adventureBoxContainer.classList.remove("door-open-anim");
-                        adventureScreen.classList.add("hidden");
-                        
-                        if (isLastStep) {
-                            // 10. aşama bittiğinde tebrikler ve sandığı aç butonu ekranını getir
-                            treasureScreen.classList.remove("hidden");
-                        } else {
-                            showMessage(
-                                "Tebrikler Maceracı! Hazinenin kapısı aralanıyor...\n\nSonraki ipucu için hazır mısınız?", 
-                                async () => {
-                                    await openAdventureStep();
-                                }
-                            );
-                        }
-                    }, 900);
+                    const correctKeyword = answersDoc.data()[`step${currentStep}`].toLowerCase();
 
-                } else {
-                    showMessage("Yanlış anahtar kelime! İpucunu tekrar dikkatlice okuyun.");
+                    if (userInputValue === correctKeyword) {
+                        if (unlockBtn) unlockBtn.classList.add("unlock-animation");
+
+                        setTimeout(() => {
+                            adventureBoxContainer.classList.add("door-open-anim");
+                        }, 300);
+
+                        const isLastStep = (currentStep === 10);
+                        currentStep++;
+
+                        const targetStepToSave = currentStep > 10 ? 11 : currentStep;
+
+                        try {
+                            const userDocRef = doc(db, "users", activeUserId);
+                            await updateDoc(userDocRef, { currentKeyStep: targetStepToSave });
+                        } catch (e) {
+                            const userDocRef = doc(db, "users", activeUserId);
+                            await setDoc(userDocRef, { currentKeyStep: targetStepToSave }, { merge: true });
+                        }
+
+                        setTimeout(() => {
+                            adventureBoxContainer.classList.remove("door-open-anim");
+                            adventureScreen.classList.add("hidden");
+                            
+                            if (isLastStep) {
+                                treasureScreen.classList.remove("hidden");
+                            } else {
+                                showMessage(
+                                    "Tebrikler Maceracı! Hazinenin kapısı aralanıyor...\n\nSonraki ipucu için hazır mısınız?", 
+                                    async () => {
+                                        await openAdventureStep();
+                                    }
+                                );
+                            }
+                        }, 900);
+
+                    } else {
+                        showMessage("Yanlış anahtar kelime! İpucunu tekrar dikkatlice okuyun.");
+                    }
+
+                } catch (err) {
+                    // Güvenlik kuralları veya ağ hatası durumunda
+                    showMessage("Doğrulama yapılırken erişim reddedildi veya hata oluştu.");
                 }
             };
         }
 
-        // "Sandığı Aç" butonuna basınca video oynasacak ve kutu kaybolacak
         startTreasureVideoBtn.onclick = () => {
             treasureContentBox.classList.add("hidden");
             try {
@@ -729,9 +744,8 @@
             }
         };
 
-        // Video bitince sayfa öylece kalır, hiçbir buton veya geri dönüş tetiklenmez
         treasureVideo.onended = () => {
-            // Video bittiğinde son karede kalır, ekstra işlem yapılmaz.
+            // Video bittiğinde sayfa öylece kalır
         };
 
         async function openAdventureStep() {
@@ -749,7 +763,7 @@
                 }
             }
 
-            if (currentStep > adventureSteps.length) {
+            if (currentStep > 10) {
                 adventureScreen.classList.add("hidden");
                 treasureScreen.classList.remove("hidden");
                 treasureContentBox.classList.remove("hidden");
@@ -757,7 +771,7 @@
             }
 
             document.getElementById("adventureTitle").innerText = `${currentStep}. Aşama`;
-            document.getElementById("clueText").innerText = adventureSteps[currentStep - 1].clue;
+            document.getElementById("clueText").innerText = adventureClues[currentStep - 1];
             document.getElementById("inputLabel").innerText = `${currentStep}. anahtarı girin`;
             
             const keyInputEl = document.getElementById("keyInput");
