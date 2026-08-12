@@ -263,14 +263,15 @@
             border-color: rgba(255, 215, 0, 0.8);
         }
 
-        /* MACERA OYUN EKRANI */
+        /* MACERA OYUN EKRANI - ANAHTARİGİR.PNG ARKA PLANLI */
         #adventure-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 3, 20, 0.85);
+            background: url('anahtarigir.png') no-repeat center center;
+            background-size: 100% 100%;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -287,21 +288,22 @@
         }
 
         .adventure-box {
-            background: rgba(30, 15, 50, 0.95);
+            background: rgba(30, 15, 50, 0.85);
             border: 2px solid #ffd700;
-            padding: 35px;
+            padding: 30px;
             border-radius: 20px;
-            max-width: 450px;
+            max-width: 420px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(3px);
         }
 
         .clue-text {
-            font-size: 16px;
-            line-height: 1.6;
+            font-size: 15px;
+            line-height: 1.5;
             color: #ffd700;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-family: 'Cinzel', serif;
         }
 
@@ -309,8 +311,8 @@
             background: none;
             border: none;
             cursor: pointer;
-            margin-top: 20px;
-            font-size: 40px;
+            margin-top: 15px;
+            font-size: 38px;
             transition: transform 0.4s ease;
             outline: none;
             display: inline-block !important;
@@ -434,7 +436,7 @@
         </div>
     </div>
 
-    <!-- MACERA / BULMACA EKRANI -->
+    <!-- MACERA / BULMACA EKRANI (ANAHTARİGİR.PNG ARKA PLANLI) -->
     <div id="adventure-screen" class="hidden">
         <div class="adventure-box" id="adventureBoxContainer">
             <h2 id="adventureTitle">1. Aşama</h2>
@@ -634,9 +636,9 @@
 
                         setTimeout(() => {
                             adventureBoxContainer.classList.remove("door-open-anim");
-                            adventureScreen.classList.add("hidden");
                             
                             if (isLastStep) {
+                                adventureScreen.classList.add("hidden");
                                 treasureScreen.classList.remove("hidden");
                             } else {
                                 showMessage(
